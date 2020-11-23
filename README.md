@@ -22,7 +22,10 @@ Hope this could be a middle-ware to do better than AutoSar standard
 Build and Install 
 
 1, Prepare install fast-rtps , gflag , glog , uuid , protobuf ...
-
+   (1) Config the glog in shared library mode
+   (2) uuid and poco can be installed by apt-get by 
+         apt-get install uuid-dev
+         apt-get install libpoco-dev
 2, If not Ubuntu 1804,some of the *.cc or *.h need to modify (C++11/C++14)
 
 mkdir build

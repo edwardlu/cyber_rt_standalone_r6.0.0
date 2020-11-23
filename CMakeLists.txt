@@ -11,11 +11,13 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
-SET(CMAKE_INCLUDE_SYSTEM_FLAG_C "-I")
-SET( CMAKE_INCLUDE_SYSTEM_FLAG_CXX "-I" CACHE STRING "" FORCE )
-#SET( CMAKE_INCLUDE_SYSTEM_FLAG_CUDA "-I" CACHE STRING "" FORCE )
-SET(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -O0 -Wall")
-SET(CMAKE_BUILD_TYPE "Release")  
+set(CMAKE_INCLUDE_SYSTEM_FLAG_C "-I")
+set(CMAKE_INCLUDE_SYSTEM_FLAG_CXX "-I" CACHE STRING "" FORCE )
+#set(CMAKE_INCLUDE_SYSTEM_FLAG_CUDA "-I" CACHE STRING "" FORCE )
+set(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -O0 -Wall")
+set(CMAKE_BUILD_TYPE "Release")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 
 enable_language(ASM)
 
@@ -68,6 +70,7 @@ file(GLOB CYBER_SRCS
 	"${PROJECT_SOURCE_DIR}/cyber/*.cc"
 	"${PROJECT_SOURCE_DIR}/cyber/sysmo/*.cc"
 	)
+
 set(CYBER_TEST_SRCS ${CYBER_SRCS})
 list(FILTER CYBER_TEST_SRCS INCLUDE REGEX .*test[.]cc )
 list(FILTER CYBER_SRCS EXCLUDE REGEX .*test[.]cc )
@@ -77,7 +80,7 @@ include_directories(${PROJECT_BINARY_DIR})
 
 #build cyber library
 add_library(cyber SHARED ${CYBER_SRCS})
-target_link_libraries(cyber cyber_proto fastrtps fastcdr atomic dl rt tinyxml2 glog gflags PocoFoundation uuid pthread)
+target_link_libraries(cyber cyber_proto atomic fastrtps fastcdr dl rt tinyxml2 glog gflags PocoFoundation uuid pthread)
 
 #build mainboard
 file(GLOB CYBER_MAINBOARD_SRCS "${PROJECT_SOURCE_DIR}/cyber/mainboard/*.cc")
