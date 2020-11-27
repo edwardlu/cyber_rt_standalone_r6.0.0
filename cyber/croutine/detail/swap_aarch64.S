@@ -15,7 +15,7 @@ ctx_swap:
 	stp    x26,  x27, [sp,#-16]!
 	stp    x28,  x29, [sp,#-16]!
 
-    mov    x3,   sp
+	mov    x3,   sp
 	str    x3,   [x0]
 
 	ldr    x3,   [x1]

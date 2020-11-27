@@ -98,7 +98,6 @@ add_subdirectory(cyber/examples)
 #build tools 
 add_subdirectory(cyber/tools)
 
-
 #build tests
 # FOREACH(TEST_FILE ${CYBER_TEST_SRCS})  
 # 	string( REGEX MATCH "[A-Za-z0-9_]*[.]cc" FILE_NAME ${TEST_FILE} ) 
