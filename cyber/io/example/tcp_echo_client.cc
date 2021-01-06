@@ -51,14 +51,21 @@ int main(int argc, char* argv[]) {
         uint32_t count = 0;
 
         Session session;
-        session.Socket(AF_INET, SOCK_STREAM, 0);
-        if (session.Connect((struct sockaddr*)&server_addr,
-                            sizeof(server_addr)) < 0) {
-          std::cout << "connect to server failed, " << strerror(errno)
-                    << std::endl;
-          return;
-        }
 
+	//wat for connection established
+	while(true)
+	{
+		session.Socket(AF_INET, SOCK_STREAM, 0);
+		if (session.Connect((struct sockaddr*)&server_addr, sizeof(server_addr)) < 0)
+		{
+			std::cout << "connect to server failed, " << strerror(errno) << std::endl;
+			usleep(1000);
+			continue;
+		} else {
+			break;
+		}
+	}
+	
         while (true) {
           count = 0;
           std::cout << "please enter a message (enter Ctrl+C to exit):"
@@ -75,9 +82,7 @@ int main(int argc, char* argv[]) {
             std::cout << "send message failed." << std::endl;
             return;
           }
-
-          while ((nbytes = session.Recv(server_reply.data(),
-                                        server_reply.size(), 0)) > 0) {
+          while ((nbytes = session.Recv(server_reply.data(), server_reply.size(), 0)) > 0) {
             for (auto itr = server_reply.begin();
                  itr < server_reply.begin() + nbytes; ++itr) {
               std::cout << *itr;
@@ -99,7 +104,6 @@ int main(int argc, char* argv[]) {
             session.Close();
             return;
           }
-
           std::cout << std::endl;
         }
       },
