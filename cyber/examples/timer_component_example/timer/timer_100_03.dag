@@ -1,0 +1,10 @@
+module_config {
+    module_library : "/cyber_rt_standalone_r6.0.0/build/libtimer_100ms_03.so"
+    timer_components {
+        class_name : "Timer_100ms_03"
+        config {
+            name : "timer_100_03"
+            interval : 1000
+        }
+    }
+}

@@ -1,0 +1,10 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/media/lubin/extend/lubin/my_project/cyber_rt/cyber_rt_standalone_r6.0.0/cyber/croutine/detail/swap_x86_64.S
+
