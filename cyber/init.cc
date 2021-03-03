@@ -60,24 +60,24 @@ std::unique_ptr<Node> clock_node;
 logger::AsyncLogger* async_logger = nullptr;
 
 void InitLogger(const char* binary_name) {
-  const char* slash = strrchr(binary_name, '/');
-  if (slash) {
-    ::apollo::cyber::binary::SetName(slash + 1);
-  } else {
-    ::apollo::cyber::binary::SetName(binary_name);
-  }
+	const char* slash = strrchr(binary_name, '/');
+	if (slash) {
+		::apollo::cyber::binary::SetName(slash + 1);
+	} else {
+		::apollo::cyber::binary::SetName(binary_name);
+	}
 
-  // Init glog
-  google::InitGoogleLogging(binary_name);
-  google::SetLogDestination(google::ERROR, "");
-  google::SetLogDestination(google::WARNING, "");
-  google::SetLogDestination(google::FATAL, "");
+	// Init glog
+	google::InitGoogleLogging(binary_name);
+	google::SetLogDestination(google::ERROR, "");
+	google::SetLogDestination(google::WARNING, "");
+	google::SetLogDestination(google::FATAL, "");
 
-  // Init async logger
-  async_logger = new ::apollo::cyber::logger::AsyncLogger(
-      google::base::GetLogger(FLAGS_minloglevel));
-  google::base::SetLogger(FLAGS_minloglevel, async_logger);
-  async_logger->Start();
+	// Init async logger
+	async_logger = new ::apollo::cyber::logger::AsyncLogger(
+	google::base::GetLogger(FLAGS_minloglevel));
+	google::base::SetLogger(FLAGS_minloglevel, async_logger);
+	async_logger->Start();
 }
 
 void StopLogger() { delete async_logger; }
@@ -85,64 +85,64 @@ void StopLogger() { delete async_logger; }
 }  // namespace
 
 void OnShutdown(int sig) {
-  (void)sig;
-  if (GetState() != STATE_SHUTDOWN) {
-    SetState(STATE_SHUTTING_DOWN);
-  }
+	(void)sig;
+	if (GetState() != STATE_SHUTDOWN) {
+		SetState(STATE_SHUTTING_DOWN);
+	}
 }
 
 void ExitHandle() { Clear(); }
 
 bool Init(const char* binary_name) {
-  std::lock_guard<std::mutex> lg(g_mutex);
-  if (GetState() != STATE_UNINITIALIZED) {
-    return false;
-  }
+	std::lock_guard<std::mutex> lg(g_mutex);
+	if (GetState() != STATE_UNINITIALIZED) {
+		return false;
+	}
 
-  InitLogger(binary_name);
-  auto thread = const_cast<std::thread*>(async_logger->LogThread());
-  scheduler::Instance()->SetInnerThreadAttr("async_log", thread);
-  SysMo::Instance();
-  std::signal(SIGINT, OnShutdown);
-  // Register exit handlers
-  if (!g_atexit_registered) {
-    if (std::atexit(ExitHandle) != 0) {
-      AERROR << "Register exit handle failed";
-      return false;
-    }
-    AINFO << "Register exit handle succ.";
-    g_atexit_registered = true;
-  }
-  SetState(STATE_INITIALIZED);
+	InitLogger(binary_name);
+	auto thread = const_cast<std::thread*>(async_logger->LogThread());
+	scheduler::Instance()->SetInnerThreadAttr("async_log", thread);
+	SysMo::Instance();
+	std::signal(SIGINT, OnShutdown);
+	// Register exit handlers
+	if (!g_atexit_registered) {
+		if (std::atexit(ExitHandle) != 0) {
+			AERROR << "Register exit handle failed";
+			return false;
+		}
+		AINFO << "Register exit handle succ.";
+		g_atexit_registered = true;
+	}
+	SetState(STATE_INITIALIZED);
 
-  auto global_data = GlobalData::Instance();
-  if (global_data->IsMockTimeMode()) {
-    auto node_name = kClockNode + std::to_string(getpid());
-    clock_node = std::unique_ptr<Node>(new Node(node_name));
-    auto cb =
-        [](const std::shared_ptr<const apollo::cyber::proto::Clock>& msg) {
-          if (msg->has_clock()) {
-            Clock::Instance()->SetNow(Time(msg->clock()));
-          }
-        };
-    clock_node->CreateReader<apollo::cyber::proto::Clock>(kClockChannel, cb);
-  }
-  return true;
+	auto global_data = GlobalData::Instance();
+	if (global_data->IsMockTimeMode()) {
+		auto node_name = kClockNode + std::to_string(getpid());
+		clock_node = std::unique_ptr<Node>(new Node(node_name));
+		auto cb =
+			[](const std::shared_ptr<const apollo::cyber::proto::Clock>& msg) {
+			if (msg->has_clock()) {
+				Clock::Instance()->SetNow(Time(msg->clock()));
+			}
+		};
+		clock_node->CreateReader<apollo::cyber::proto::Clock>(kClockChannel, cb);
+	}
+	return true;
 }
 
 void Clear() {
-  std::lock_guard<std::mutex> lg(g_mutex);
-  if (GetState() == STATE_SHUTDOWN || GetState() == STATE_UNINITIALIZED) {
-    return;
-  }
-  SysMo::CleanUp();
-  TaskManager::CleanUp();
-  TimingWheel::CleanUp();
-  scheduler::CleanUp();
-  service_discovery::TopologyManager::CleanUp();
-  transport::Transport::CleanUp();
-  StopLogger();
-  SetState(STATE_SHUTDOWN);
+	std::lock_guard<std::mutex> lg(g_mutex);
+	if (GetState() == STATE_SHUTDOWN || GetState() == STATE_UNINITIALIZED) {
+		return;
+	}
+	SysMo::CleanUp();
+	TaskManager::CleanUp();
+	TimingWheel::CleanUp();
+	scheduler::CleanUp();
+	service_discovery::TopologyManager::CleanUp();
+	transport::Transport::CleanUp();
+	StopLogger();
+	SetState(STATE_SHUTDOWN);
 }
 
 }  // namespace cyber

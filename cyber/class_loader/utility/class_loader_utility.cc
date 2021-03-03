@@ -24,72 +24,70 @@ namespace class_loader {
 namespace utility {
 
 std::recursive_mutex& GetClassFactoryMapMapMutex() {
-  static std::recursive_mutex m;
-  return m;
+	static std::recursive_mutex m;
+	return m;
 }
 
 std::recursive_mutex& GetLibPathPocoShareLibMutex() {
-  static std::recursive_mutex m;
-  return m;
+	static std::recursive_mutex m;
+	return m;
 }
 
 BaseToClassFactoryMapMap& GetClassFactoryMapMap() {
-  static BaseToClassFactoryMapMap instance;
-  return instance;
+	static BaseToClassFactoryMapMap instance;
+	return instance;
 }
 
 LibpathPocolibVector& GetLibPathPocoShareLibVector() {
-  static LibpathPocolibVector instance;
-  return instance;
+	static LibpathPocolibVector instance;
+	return instance;
 }
 
-ClassClassFactoryMap& GetClassFactoryMapByBaseClass(
-    const std::string& typeid_base_class_name) {
-  BaseToClassFactoryMapMap& factoryMapMap = GetClassFactoryMapMap();
-  std::string base_class_name = typeid_base_class_name;
-  if (factoryMapMap.find(base_class_name) == factoryMapMap.end()) {
-    factoryMapMap[base_class_name] = ClassClassFactoryMap();
-  }
+ClassClassFactoryMap& GetClassFactoryMapByBaseClass(const std::string& typeid_base_class_name) {
+	BaseToClassFactoryMapMap& factoryMapMap = GetClassFactoryMapMap();
+	std::string base_class_name = typeid_base_class_name;
+	if (factoryMapMap.find(base_class_name) == factoryMapMap.end()) {
+		factoryMapMap[base_class_name] = ClassClassFactoryMap();
+	}
 
-  return factoryMapMap[base_class_name];
+	return factoryMapMap[base_class_name];
 }
 
 std::string& GetCurLoadingLibraryNameReference() {
-  static std::string library_name;
-  return library_name;
+	static std::string library_name;
+	return library_name;
 }
 
 std::string GetCurLoadingLibraryName() {
-  return GetCurLoadingLibraryNameReference();
+	return GetCurLoadingLibraryNameReference();
 }
 
 void SetCurLoadingLibraryName(const std::string& library_name) {
-  std::string& library_name_ref = GetCurLoadingLibraryNameReference();
-  library_name_ref = library_name;
+	std::string& library_name_ref = GetCurLoadingLibraryNameReference();
+	library_name_ref = library_name;
 }
 
 ClassLoader*& GetCurActiveClassLoaderReference() {
-  static ClassLoader* loader = nullptr;
-  return loader;
+	static ClassLoader* loader = nullptr;
+	return loader;
 }
 
 ClassLoader* GetCurActiveClassLoader() {
-  return (GetCurActiveClassLoaderReference());
+	return (GetCurActiveClassLoaderReference());
 }
 
 void SetCurActiveClassLoader(ClassLoader* loader) {
-  ClassLoader*& loader_ref = GetCurActiveClassLoaderReference();
-  loader_ref = loader;
+	ClassLoader*& loader_ref = GetCurActiveClassLoaderReference();
+	loader_ref = loader;
 }
 
-ClassFactoryVector GetAllClassFactoryObjects(
-    const ClassClassFactoryMap& factories) {
-  ClassFactoryVector all_class_factory_objs;
-  for (auto& class_factory : factories) {
-    all_class_factory_objs.emplace_back(class_factory.second);
-  }
+ClassFactoryVector GetAllClassFactoryObjects(const ClassClassFactoryMap& factories) {
+	ClassFactoryVector all_class_factory_objs;
+	for (auto& class_factory : factories) {
+		all_class_factory_objs.emplace_back(class_factory.second);
+	}
 
-  return all_class_factory_objs;
+	return all_class_factory_objs;
 }
 
 ClassFactoryVector GetAllClassFactoryObjects() {
@@ -106,16 +104,15 @@ ClassFactoryVector GetAllClassFactoryObjects() {
   return all_class_factory_objs;
 }
 
-ClassFactoryVector GetAllClassFactoryObjectsOfLibrary(
-    const std::string& library_path) {
-  ClassFactoryVector all_class_factory_objs = GetAllClassFactoryObjects();
-  ClassFactoryVector library_class_factory_objs;
-  for (auto& class_factory_obj : all_class_factory_objs) {
-    if (class_factory_obj->GetRelativeLibraryPath() == library_path) {
-      library_class_factory_objs.emplace_back(class_factory_obj);
-    }
-  }
-  return library_class_factory_objs;
+ClassFactoryVector GetAllClassFactoryObjectsOfLibrary(const std::string& library_path) {
+	ClassFactoryVector all_class_factory_objs = GetAllClassFactoryObjects();
+	ClassFactoryVector library_class_factory_objs;
+	for (auto& class_factory_obj : all_class_factory_objs) {
+		if (class_factory_obj->GetRelativeLibraryPath() == library_path) {
+			library_class_factory_objs.emplace_back(class_factory_obj);
+		}
+	}
+	return library_class_factory_objs;
 }
 
 void DestroyClassFactoryObjectsOfLibrary(
@@ -194,59 +191,55 @@ bool IsLibraryLoaded(const std::string& library_path,
 }
 
 bool LoadLibrary(const std::string& library_path, ClassLoader* loader) {
-  if (IsLibraryLoadedByAnybody(library_path)) {
-    AINFO << "lib has been loaded by others,only attach to class factory obj."
-          << library_path;
-    ClassFactoryVector lib_class_factory_objs =
-        GetAllClassFactoryObjectsOfLibrary(library_path);
-    for (auto& class_factory_obj : lib_class_factory_objs) {
-      class_factory_obj->AddOwnedClassLoader(loader);
-    }
-    return true;
-  }
+	if (IsLibraryLoadedByAnybody(library_path)) {
+		AINFO << "lib has been loaded by others,only attach to class factory obj." << library_path;
+		ClassFactoryVector lib_class_factory_objs = GetAllClassFactoryObjectsOfLibrary(library_path);
+		for (auto& class_factory_obj : lib_class_factory_objs) {
+			class_factory_obj->AddOwnedClassLoader(loader);
+		}
+		return true;
+	}
+	PocoLibraryPtr poco_library = nullptr;
+	static std::recursive_mutex loader_mutex;
+	{
+		std::lock_guard<std::recursive_mutex> lck(loader_mutex);
 
-  PocoLibraryPtr poco_library = nullptr;
-  static std::recursive_mutex loader_mutex;
-  {
-    std::lock_guard<std::recursive_mutex> lck(loader_mutex);
+		try {
+			SetCurActiveClassLoader(loader);
+			SetCurLoadingLibraryName(library_path);
+			poco_library = PocoLibraryPtr(new Poco::SharedLibrary(library_path));
+		} catch (const Poco::LibraryLoadException& e) {
+			SetCurLoadingLibraryName("");
+			SetCurActiveClassLoader(nullptr);
+			AERROR << "poco LibraryLoadException: " << e.message();
+		} catch (const Poco::LibraryAlreadyLoadedException& e) {
+			SetCurLoadingLibraryName("");
+			SetCurActiveClassLoader(nullptr);
+			AERROR << "poco LibraryAlreadyLoadedException: " << e.message();
+		} catch (const Poco::NotFoundException& e) {
+			SetCurLoadingLibraryName("");
+			SetCurActiveClassLoader(nullptr);
+			AERROR << "poco NotFoundException: " << e.message();
+		}
 
-    try {
-      SetCurActiveClassLoader(loader);
-      SetCurLoadingLibraryName(library_path);
-      poco_library = PocoLibraryPtr(new Poco::SharedLibrary(library_path));
-    } catch (const Poco::LibraryLoadException& e) {
-      SetCurLoadingLibraryName("");
-      SetCurActiveClassLoader(nullptr);
-      AERROR << "poco LibraryLoadException: " << e.message();
-    } catch (const Poco::LibraryAlreadyLoadedException& e) {
-      SetCurLoadingLibraryName("");
-      SetCurActiveClassLoader(nullptr);
-      AERROR << "poco LibraryAlreadyLoadedException: " << e.message();
-    } catch (const Poco::NotFoundException& e) {
-      SetCurLoadingLibraryName("");
-      SetCurActiveClassLoader(nullptr);
-      AERROR << "poco NotFoundException: " << e.message();
-    }
+		SetCurLoadingLibraryName("");
+		SetCurActiveClassLoader(nullptr);
+	}
 
-    SetCurLoadingLibraryName("");
-    SetCurActiveClassLoader(nullptr);
-  }
+	if (poco_library == nullptr) {
+		AERROR << "poco shared library failed: " << library_path;
+		return false;
+	}
 
-  if (poco_library == nullptr) {
-    AERROR << "poco shared library failed: " << library_path;
-    return false;
-  }
+	auto num_lib_objs = GetAllClassFactoryObjectsOfLibrary(library_path).size();
+	if (num_lib_objs == 0) {
+		AWARN << "Class factory objs counts is 0, maybe registerclass failed.";
+	}
 
-  auto num_lib_objs = GetAllClassFactoryObjectsOfLibrary(library_path).size();
-  if (num_lib_objs == 0) {
-    AWARN << "Class factory objs counts is 0, maybe registerclass failed.";
-  }
-
-  std::lock_guard<std::recursive_mutex> lck(GetLibPathPocoShareLibMutex());
-  LibpathPocolibVector& opened_libraries = GetLibPathPocoShareLibVector();
-  opened_libraries.emplace_back(
-      std::pair<std::string, PocoLibraryPtr>(library_path, poco_library));
-  return true;
+	std::lock_guard<std::recursive_mutex> lck(GetLibPathPocoShareLibMutex());
+	LibpathPocolibVector& opened_libraries = GetLibPathPocoShareLibVector();
+	opened_libraries.emplace_back(std::pair<std::string, PocoLibraryPtr>(library_path, poco_library));
+	return true;
 }
 
 void UnloadLibrary(const std::string& library_path, ClassLoader* loader) {

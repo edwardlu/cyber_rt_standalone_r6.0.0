@@ -47,8 +47,7 @@ public:
 	friend class Component;
 	friend class TimerComponent;
 	friend bool Init(const char*);
-	friend std::unique_ptr<Node> CreateNode(const std::string&,
-	const std::string&);
+	friend std::unique_ptr<Node> CreateNode(const std::string&, const std::string&);
 	virtual ~Node();
 
 	/**
@@ -67,7 +66,7 @@ public:
 	*/
 	template <typename MessageT>
 	auto CreateWriter(const proto::RoleAttributes& role_attr)
-	-> std::shared_ptr<Writer<MessageT>>;
+		-> std::shared_ptr<Writer<MessageT>>;
 
 	/**
 	* @brief Create a Writer with specific message type.
@@ -78,7 +77,7 @@ public:
 	*/
 	template <typename MessageT>
 	auto CreateWriter(const std::string& channel_name)
-	-> std::shared_ptr<Writer<MessageT>>;
+		-> std::shared_ptr<Writer<MessageT>>;
 
 	/**
 	* @brief Create a Reader with specific message type with channel name
@@ -91,9 +90,8 @@ public:
 	* @return std::shared_ptr<cyber::Reader<MessageT>> result Reader Object
 	*/
 	template <typename MessageT>
-	auto CreateReader(const std::string& channel_name,
-	const CallbackFunc<MessageT>& reader_func = nullptr)
-	-> std::shared_ptr<cyber::Reader<MessageT>>;
+	auto CreateReader(const std::string& channel_name, const CallbackFunc<MessageT>& reader_func = nullptr)
+		-> std::shared_ptr<cyber::Reader<MessageT>>;
 
 	/**
 	* @brief Create a Reader with specific message type with reader config
@@ -105,9 +103,8 @@ public:
 	* @return std::shared_ptr<cyber::Reader<MessageT>> result Reader Object
 	*/
 	template <typename MessageT>
-	auto CreateReader(const ReaderConfig& config,
-	const CallbackFunc<MessageT>& reader_func = nullptr)
-	-> std::shared_ptr<cyber::Reader<MessageT>>;
+	auto CreateReader(const ReaderConfig& config, const CallbackFunc<MessageT>& reader_func = nullptr)
+		-> std::shared_ptr<cyber::Reader<MessageT>>;
 
 	/**
 	* @brief Create a Reader object with `RoleAttributes`
@@ -119,9 +116,8 @@ public:
 	* @return std::shared_ptr<cyber::Reader<MessageT>> result Reader Object
 	*/
 	template <typename MessageT>
-	auto CreateReader(const proto::RoleAttributes& role_attr,
-	const CallbackFunc<MessageT>& reader_func = nullptr)
-	-> std::shared_ptr<cyber::Reader<MessageT>>;
+	auto CreateReader(const proto::RoleAttributes& role_attr, const CallbackFunc<MessageT>& reader_func = nullptr)
+		-> std::shared_ptr<cyber::Reader<MessageT>>;
 
 	/**
 	* @brief Create a Service object with specific `service_name`
@@ -133,10 +129,8 @@ public:
 	* @return std::shared_ptr<Service<Request, Response>> result `Service`
 	*/
 	template <typename Request, typename Response>
-	auto CreateService(const std::string& service_name,
-	const typename Service<Request, Response>::ServiceCallback&
-	service_callback)
-	-> std::shared_ptr<Service<Request, Response>>;
+	auto CreateService(const std::string& service_name, const typename Service<Request, Response>::ServiceCallback& service_callback)
+		-> std::shared_ptr<Service<Request, Response>>;
 
 	/**
 	* @brief Create a Client object to request Service with `service_name`
@@ -148,7 +142,7 @@ public:
 	*/
 	template <typename Request, typename Response>
 	auto CreateClient(const std::string& service_name)
-	-> std::shared_ptr<Client<Request, Response>>;
+		-> std::shared_ptr<Client<Request, Response>>;
 
 	/**
 	* @brief Observe all readers' data
@@ -169,11 +163,10 @@ public:
 	*/
 	template <typename MessageT>
 	auto GetReader(const std::string& channel_name)
-	-> std::shared_ptr<Reader<MessageT>>;
+		-> std::shared_ptr<Reader<MessageT>>;
 
-	private:
-	explicit Node(const std::string& node_name,
-	const std::string& name_space = "");
+private:
+	explicit Node(const std::string& node_name, const std::string& name_space = "");
 
 	std::string node_name_;
 	std::string name_space_;

@@ -54,12 +54,11 @@ bool ClassLoaderManager::IsLibraryValid(const std::string& library_name) {
 }
 
 bool ClassLoaderManager::LoadLibrary(const std::string& library_path) {
-  std::lock_guard<std::mutex> lck(libpath_loader_map_mutex_);
-  if (!IsLibraryValid(library_path)) {
-    libpath_loader_map_[library_path] =
-        new class_loader::ClassLoader(library_path);
-  }
-  return IsLibraryValid(library_path);
+	std::lock_guard<std::mutex> lck(libpath_loader_map_mutex_);
+	if (!IsLibraryValid(library_path)) {
+		libpath_loader_map_[library_path] = new class_loader::ClassLoader(library_path);
+	}
+	return IsLibraryValid(library_path);
 }
 
 int ClassLoaderManager::UnloadLibrary(const std::string& library_path) {

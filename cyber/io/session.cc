@@ -68,22 +68,21 @@ auto Session::Accept(struct sockaddr *addr, socklen_t *addrlen) -> SessionPtr {
 }
 
 int Session::Connect(const struct sockaddr *addr, socklen_t addrlen) {
-  ACHECK(fd_ != -1);
+	ACHECK(fd_ != -1);
 
-  int optval;
-  socklen_t optlen = sizeof(optval);
-  int res = connect(fd_, addr, addrlen);
-  if (res == -1 && errno == EINPROGRESS) {
-    poll_handler_->Block(-1, false);
-    getsockopt(fd_, SOL_SOCKET, SO_ERROR, reinterpret_cast<void *>(&optval),
-               &optlen);
-    if (optval == 0) {
-      res = 0;
-    } else {
-      errno = optval;
-    }
-  }
-  return res;
+	int optval;
+	socklen_t optlen = sizeof(optval);
+	int res = connect(fd_, addr, addrlen);
+	if (res == -1 && errno == EINPROGRESS) {
+		poll_handler_->Block(-1, false);
+		getsockopt(fd_, SOL_SOCKET, SO_ERROR, reinterpret_cast<void *>(&optval), &optlen);
+		if (optval == 0) {
+			res = 0;
+		} else {
+			errno = optval;
+		}
+	}
+	return res;
 }
 
 int Session::Close() {

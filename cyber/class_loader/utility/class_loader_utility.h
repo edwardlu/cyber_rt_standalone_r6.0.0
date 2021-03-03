@@ -45,11 +45,9 @@ class ClassLoader;
 namespace utility {
 
 using PocoLibraryPtr = std::shared_ptr<Poco::SharedLibrary>;
-using ClassClassFactoryMap =
-    std::map<std::string, utility::AbstractClassFactoryBase*>;
+using ClassClassFactoryMap = std::map<std::string, utility::AbstractClassFactoryBase*>;
 using BaseToClassFactoryMapMap = std::map<std::string, ClassClassFactoryMap>;
-using LibpathPocolibVector =
-    std::vector<std::pair<std::string, PocoLibraryPtr>>;
+using LibpathPocolibVector = std::vector<std::pair<std::string, PocoLibraryPtr>>;
 using ClassFactoryVector = std::vector<AbstractClassFactoryBase*>;
 
 BaseToClassFactoryMapMap& GetClassFactoryMapMap();
@@ -67,49 +65,42 @@ bool IsLibraryLoadedByAnybody(const std::string& library_path);
 bool LoadLibrary(const std::string& library_path, ClassLoader* loader);
 void UnloadLibrary(const std::string& library_path, ClassLoader* loader);
 template <typename Derived, typename Base>
-void RegisterClass(const std::string& class_name,
-                   const std::string& base_class_name);
+void RegisterClass(const std::string& class_name, const std::string& base_class_name);
 template <typename Base>
 Base* CreateClassObj(const std::string& class_name, ClassLoader* loader);
 template <typename Base>
 std::vector<std::string> GetValidClassNames(ClassLoader* loader);
 
 template <typename Derived, typename Base>
-void RegisterClass(const std::string& class_name,
-                   const std::string& base_class_name) {
-  AINFO << "registerclass:" << class_name << "," << base_class_name << ","
-        << GetCurLoadingLibraryName();
+void RegisterClass(const std::string& class_name, const std::string& base_class_name) {
+	AINFO << "registerclass:" << class_name << "," << base_class_name << "," << GetCurLoadingLibraryName();
 
-  utility::AbstractClassFactory<Base>* new_class_factory_obj =
-      new utility::ClassFactory<Derived, Base>(class_name, base_class_name);
-  new_class_factory_obj->AddOwnedClassLoader(GetCurActiveClassLoader());
-  new_class_factory_obj->SetRelativeLibraryPath(GetCurLoadingLibraryName());
+	utility::AbstractClassFactory<Base>* new_class_factory_obj = new utility::ClassFactory<Derived, Base>(class_name, base_class_name);
+	new_class_factory_obj->AddOwnedClassLoader(GetCurActiveClassLoader());
+	new_class_factory_obj->SetRelativeLibraryPath(GetCurLoadingLibraryName());
 
-  GetClassFactoryMapMapMutex().lock();
-  ClassClassFactoryMap& factory_map =
-      GetClassFactoryMapByBaseClass(typeid(Base).name());
-  factory_map[class_name] = new_class_factory_obj;
-  GetClassFactoryMapMapMutex().unlock();
+	GetClassFactoryMapMapMutex().lock();
+	ClassClassFactoryMap& factory_map = GetClassFactoryMapByBaseClass(typeid(Base).name());
+	factory_map[class_name] = new_class_factory_obj;
+	GetClassFactoryMapMapMutex().unlock();
 }
 
 template <typename Base>
 Base* CreateClassObj(const std::string& class_name, ClassLoader* loader) {
-  GetClassFactoryMapMapMutex().lock();
-  ClassClassFactoryMap& factoryMap =
-      GetClassFactoryMapByBaseClass(typeid(Base).name());
-  AbstractClassFactory<Base>* factory = nullptr;
-  if (factoryMap.find(class_name) != factoryMap.end()) {
-    factory = dynamic_cast<utility::AbstractClassFactory<Base>*>(
-        factoryMap[class_name]);
-  }
-  GetClassFactoryMapMapMutex().unlock();
+	GetClassFactoryMapMapMutex().lock();
+	ClassClassFactoryMap& factoryMap = GetClassFactoryMapByBaseClass(typeid(Base).name());
+	AbstractClassFactory<Base>* factory = nullptr;
+	if (factoryMap.find(class_name) != factoryMap.end()) {
+		factory = dynamic_cast<utility::AbstractClassFactory<Base>*>(factoryMap[class_name]);
+	}
+	GetClassFactoryMapMapMutex().unlock();
 
-  Base* classobj = nullptr;
-  if (factory && factory->IsOwnedBy(loader)) {
-    classobj = factory->CreateObj();
-  }
+	Base* classobj = nullptr;
+	if (factory && factory->IsOwnedBy(loader)) {
+		classobj = factory->CreateObj();
+	}
 
-  return classobj;
+	return classobj;
 }
 
 template <typename Base>

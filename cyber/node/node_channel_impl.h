@@ -76,7 +76,7 @@ public:
 	* @param node_name node name
 	*/
 	explicit NodeChannelImpl(const std::string& node_name)
-	: is_reality_mode_(true), node_name_(node_name) 
+		: is_reality_mode_(true), node_name_(node_name) 
 	{
 		node_attr_.set_host_name(common::GlobalData::Instance()->HostName());
 		node_attr_.set_host_ip(common::GlobalData::Instance()->HostIp());
@@ -84,13 +84,12 @@ public:
 		node_attr_.set_node_name(node_name);
 		uint64_t node_id = common::GlobalData::RegisterNode(node_name);
 		node_attr_.set_node_id(node_id);
-
+		
 		is_reality_mode_ = common::GlobalData::Instance()->IsRealityMode();
 
 		if (is_reality_mode_) 
 		{
-			node_manager_ =
-			service_discovery::TopologyManager::Instance()->node_manager();
+			node_manager_ = service_discovery::TopologyManager::Instance()->node_manager();
 			node_manager_->Join(node_attr_, RoleType::ROLE_NODE);
 		}
 	}
@@ -121,17 +120,13 @@ private:
 	auto CreateWriter(const std::string& channel_name)-> std::shared_ptr<Writer<MessageT>>;
 
 	template <typename MessageT>
-	auto CreateReader(const std::string& channel_name,
-	const CallbackFunc<MessageT>& reader_func)-> std::shared_ptr<Reader<MessageT>>;
+	auto CreateReader(const std::string& channel_name, const CallbackFunc<MessageT>& reader_func)-> std::shared_ptr<Reader<MessageT>>;
 
 	template <typename MessageT>
-	auto CreateReader(const ReaderConfig& config,
-	const CallbackFunc<MessageT>& reader_func)-> std::shared_ptr<Reader<MessageT>>;
+	auto CreateReader(const ReaderConfig& config, const CallbackFunc<MessageT>& reader_func)-> std::shared_ptr<Reader<MessageT>>;
 
 	template <typename MessageT>
-	auto CreateReader(const proto::RoleAttributes& role_attr,
-	const CallbackFunc<MessageT>& reader_func,
-	uint32_t pending_queue_size = DEFAULT_PENDING_QUEUE_SIZE)-> std::shared_ptr<Reader<MessageT>>;
+	auto CreateReader(const proto::RoleAttributes& role_attr, const CallbackFunc<MessageT>& reader_func, uint32_t pending_queue_size = DEFAULT_PENDING_QUEUE_SIZE)-> std::shared_ptr<Reader<MessageT>>;
 
 	template <typename MessageT>
 	auto CreateReader(const proto::RoleAttributes& role_attr)-> std::shared_ptr<Reader<MessageT>>;

@@ -1,0 +1,10 @@
+module_config {
+    module_library : "/media/lubin/1T/project/cyber_rt_standalone_r6.0.0/build/libtimer_sender_02.so"
+    timer_components {
+        class_name : "TimerComponentSender_02"
+        config {
+            name : "/internal/task1"
+            interval : 8
+        }
+    }
+}

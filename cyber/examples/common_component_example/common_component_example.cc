@@ -14,15 +14,17 @@
  * limitations under the License.
  *****************************************************************************/
 #include "cyber/examples/common_component_example/common_component_example.h"
-
+/*
+	lubin - Each croutin was created by the cyber,and now it is safe to call init individual commponet
+	Than dispatch each task according to the name and attr
+*/
 bool CommonComponentSample::Init() {
-  AINFO << "Commontest component init";
-  return true;
+	AINFO << "Commontest component init";
+	//lubin - try to create 64 readers and put each into different croutins
+	return true;
 }
 
-bool CommonComponentSample::Proc(const std::shared_ptr<Driver>& msg0,
-                                 const std::shared_ptr<Driver>& msg1) {
-  AINFO << "Start common component Proc [" << msg0->msg_id() << "] ["
-        << msg1->msg_id() << "]";
-  return true;
+bool CommonComponentSample::Proc(const std::shared_ptr<Driver>& msg0, const std::shared_ptr<Driver>& msg1) {
+	AINFO << "Start common component Proc [" << msg0->msg_id() << "] [" << msg1->msg_id() << "]";
+	return true;
 }

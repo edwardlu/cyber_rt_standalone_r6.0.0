@@ -252,38 +252,39 @@ void Reader<MessageT>::Observe() {
 
 template <typename MessageT>
 bool Reader<MessageT>::Init() {
-  if (init_.exchange(true)) {
-    return true;
-  }
-  std::function<void(const std::shared_ptr<MessageT>&)> func;
-  if (reader_func_ != nullptr) {
-    func = [this](const std::shared_ptr<MessageT>& msg) {
-      this->Enqueue(msg);
-      this->reader_func_(msg);
-    };
-  } else {
-    func = [this](const std::shared_ptr<MessageT>& msg) { this->Enqueue(msg); };
-  }
-  auto sched = scheduler::Instance();
-  croutine_name_ = role_attr_.node_name() + "_" + role_attr_.channel_name();
-  auto dv = std::make_shared<data::DataVisitor<MessageT>>(
-      role_attr_.channel_id(), pending_queue_size_);
-  // Using factory to wrap templates.
-  croutine::RoutineFactory factory =
-      croutine::CreateRoutineFactory<MessageT>(std::move(func), dv);
-  if (!sched->CreateTask(factory, croutine_name_)) {
-    AERROR << "Create Task Failed!";
-    init_.store(false);
-    return false;
-  }
+	if (init_.exchange(true)) {
+		return true;
+	}
+	
+	std::function<void(const std::shared_ptr<MessageT>&)> func;
+	if (reader_func_ != nullptr) {
+		func = [this](const std::shared_ptr<MessageT>& msg) {
+			this->Enqueue(msg);
+			this->reader_func_(msg);
+		};
+	} else {
+		func = [this](const std::shared_ptr<MessageT>& msg) { this->Enqueue(msg); };
+	}
+	auto sched = scheduler::Instance();
+	croutine_name_ = role_attr_.node_name() + "_" + role_attr_.channel_name();
+	auto dv = std::make_shared<data::DataVisitor<MessageT>>(role_attr_.channel_id(), pending_queue_size_);
+	//lubin - create the croutine by read function
+	//std::cout<<"##### read create : "<<croutine_name_<<" croutine #####"<<std::endl;
+	// Using factory to wrap templates.
+	croutine::RoutineFactory factory =
+	croutine::CreateRoutineFactory<MessageT>(std::move(func), dv);
+	if (!sched->CreateTask(factory, croutine_name_)) {
+		AERROR << "Create Task Failed!";
+		init_.store(false);
+		return false;
+	}
 
-  receiver_ = ReceiverManager<MessageT>::Instance()->GetReceiver(role_attr_);
-  this->role_attr_.set_id(receiver_->id().HashValue());
-  channel_manager_ =
-      service_discovery::TopologyManager::Instance()->channel_manager();
-  JoinTheTopology();
+	receiver_ = ReceiverManager<MessageT>::Instance()->GetReceiver(role_attr_);
+	this->role_attr_.set_id(receiver_->id().HashValue());
+	channel_manager_ = service_discovery::TopologyManager::Instance()->channel_manager();
+	JoinTheTopology();
 
-  return true;
+	return true;
 }
 
 template <typename MessageT>

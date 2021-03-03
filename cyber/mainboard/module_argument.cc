@@ -26,18 +26,18 @@ namespace cyber {
 namespace mainboard {
 
 void ModuleArgument::DisplayUsage() {
-  AINFO << "Usage: \n    " << binary_name_ << " [OPTION]...\n"
-        << "Description: \n"
-        << "    -h, --help : help information \n"
-        << "    -d, --dag_conf=CONFIG_FILE : module dag config file\n"
-        << "    -p, --process_group=process_group: the process "
-           "namespace for running this module, default in manager process\n"
-        << "    -s, --sched_name=sched_name: sched policy "
-           "conf for hole process, sched_name should be conf in cyber.pb.conf\n"
-        << "Example:\n"
-        << "    " << binary_name_ << " -h\n"
-        << "    " << binary_name_ << " -d dag_conf_file1 -d dag_conf_file2 "
-        << "-p process_group -s sched_name\n";
+	AINFO << "Usage: \n    " << binary_name_ << " [OPTION]...\n"
+	<< "Description: \n"
+	<< "    -h, --help : help information \n"
+	<< "    -d, --dag_conf=CONFIG_FILE : module dag config file\n"
+	<< "    -p, --process_group=process_group: the process "
+	"namespace for running this module, default in manager process\n"
+	<< "    -s, --sched_name=sched_name: sched policy "
+	"conf for hole process, sched_name should be conf in cyber.pb.conf\n"
+	<< "Example:\n"
+	<< "    " << binary_name_ << " -h\n"
+	<< "    " << binary_name_ << " -d dag_conf_file1 -d dag_conf_file2 "
+	<< "-p process_group -s sched_name\n";
 }
 
 void ModuleArgument::ParseArgument(const int argc, char* const argv[]) {

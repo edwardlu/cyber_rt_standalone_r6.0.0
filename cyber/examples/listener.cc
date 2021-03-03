@@ -15,24 +15,30 @@
  *****************************************************************************/
 
 #include "cyber/examples/proto/examples.pb.h"
-
+#include "cyber/time/time.h"
 #include "cyber/cyber.h"
 
+using apollo::cyber::Time;
+
 void MessageCallback(
-	const std::shared_ptr<apollo::cyber::examples::proto::Chatter>& msg) {
-	AINFO << "Received message seq-> " << msg->seq();
-	AINFO << "msgcontent->" << msg->content();
+	const std::shared_ptr<apollo::cyber::examples::proto::TestPackage>& msg) {
+	
+	google::protobuf::uint64 delt = Time::Now().ToNanosecond() - (msg->timestamp());
+	Time t(delt);
+	
+	std::cout<<t.ToMicrosecond()<<std::endl;
+	//AINFO << "Received message seq-> " << msg->seq();
+	//AINFO << "msgcontent->" << msg->content();
+	//AINFO << "msg length->" << msg->content().length();  //1040 20480 30720 (B)
 }
 
 int main(int argc, char* argv[]) {
-	// init cyber framework
 	apollo::cyber::Init(argv[0]);
-	// create listener node
-	auto listener_node = apollo::cyber::CreateNode("listener");
-	// create listener
-	auto listener =
-		listener_node->CreateReader<apollo::cyber::examples::proto::Chatter>("channel/chatter", MessageCallback);
+
+	auto listener_node = apollo::cyber::CreateNode("listener_01");
+	auto listener = listener_node->CreateReader<apollo::cyber::examples::proto::TestPackage>("/group_01/channel_01", MessageCallback);
 
 	apollo::cyber::WaitForShutdown();
-return 0;
+
+	return 0;
 }
