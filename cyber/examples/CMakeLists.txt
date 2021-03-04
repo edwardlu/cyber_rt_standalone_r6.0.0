@@ -22,7 +22,7 @@ target_link_libraries(talker cyber)
 target_link_libraries(listener cyber)
 target_link_libraries(paramserver cyber)
 target_link_libraries(service cyber)
-target_link_libraries(record cyber cyber_proto)
+target_link_libraries(record cyber)
 
 target_link_libraries(tcp_echo_server cyber)
 target_link_libraries(tcp_echo_client cyber)

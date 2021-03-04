@@ -1,5 +1,4 @@
 cmake_minimum_required(VERSION 3.10)
-# include(aarch64_toolchainfile.cmake)
 include(GNUInstallDirs)
 
 #project setting
@@ -35,7 +34,6 @@ include(cmake/Dependencies.cmake)
 
 #build proto files
 add_subdirectory(cyber/proto)
-
 #collect source files
 file(GLOB CYBER_SRCS 
 	"${PROJECT_SOURCE_DIR}/cyber/base/*.cc"
@@ -69,6 +67,7 @@ file(GLOB CYBER_SRCS
 	"${PROJECT_SOURCE_DIR}/cyber/transport/*/*.cc"
 	"${PROJECT_SOURCE_DIR}/cyber/*.cc"
 	"${PROJECT_SOURCE_DIR}/cyber/sysmo/*.cc"
+	"${PROJECT_SOURCE_DIR}/cyber/proto/*.cc"
 	)
 
 set(CYBER_TEST_SRCS ${CYBER_SRCS})
@@ -80,7 +79,8 @@ include_directories(${PROJECT_BINARY_DIR})
 
 #build cyber library
 add_library(cyber SHARED ${CYBER_SRCS})
-target_link_libraries(cyber cyber_proto atomic fastrtps fastcdr dl rt tinyxml2 glog gflags PocoFoundation uuid pthread)
+#target_link_libraries(cyber cyber_proto atomic fastrtps fastcdr dl rt tinyxml2 glog gflags PocoFoundation uuid pthread)
+target_link_libraries(cyber protobuf atomic fastrtps fastcdr dl rt tinyxml2 glog gflags PocoFoundation uuid pthread)
 
 #build mainboard
 file(GLOB CYBER_MAINBOARD_SRCS "${PROJECT_SOURCE_DIR}/cyber/mainboard/*.cc")

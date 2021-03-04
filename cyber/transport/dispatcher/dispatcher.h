@@ -48,8 +48,7 @@ class Dispatcher;
 using DispatcherPtr = std::shared_ptr<Dispatcher>;
 
 template <typename MessageT>
-using MessageListener =
-    std::function<void(const std::shared_ptr<MessageT>&, const MessageInfo&)>;
+using MessageListener = std::function<void(const std::shared_ptr<MessageT>&, const MessageInfo&)>;
 
 class Dispatcher {
  public:

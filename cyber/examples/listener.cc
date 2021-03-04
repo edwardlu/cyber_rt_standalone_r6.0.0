@@ -27,7 +27,7 @@ void MessageCallback(
 	Time t(delt);
 	
 	std::cout<<t.ToMicrosecond()<<std::endl;
-	//AINFO << "Received message seq-> " << msg->seq();
+	AINFO << "Received message seq-> " << msg->seq();
 	//AINFO << "msgcontent->" << msg->content();
 	//AINFO << "msg length->" << msg->content().length();  //1040 20480 30720 (B)
 }

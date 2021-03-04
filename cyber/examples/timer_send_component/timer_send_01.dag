@@ -4,7 +4,7 @@ module_config {
         class_name : "TimerComponentSender_01"
         config {
             name : "/internal/task0"
-            interval : 2
+            interval : 10
         }
     }
 }

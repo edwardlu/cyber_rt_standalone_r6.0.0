@@ -27,18 +27,14 @@ bool TimerComponentSender_01::Init() {
 bool TimerComponentSender_01::Proc() 
 {
 	static int i = 0;
-	static std::string data(102400,'a');
+	static std::string data(8192,'a');
 	auto out_msg = std::make_shared<TestPackage>();
 	out_msg->set_seq(i++);
-	if(i <= 10000)
-	{
-		out_msg->set_timestamp(Time::Now().ToNanosecond());
-		out_msg->set_content(data);
-		driver_writer_->Write(out_msg);
-		AINFO << "timer_send_01  TestPackage";
-	} else {
-		std::cout<<"send test already finished"<<std::endl;
-	}
+	out_msg->set_timestamp(Time::Now().ToNanosecond());
+	out_msg->set_content(data);
+	driver_writer_->Write(out_msg);
+	AINFO << "timer_send_01  TestPackage";
+
 	return true;
 }
 

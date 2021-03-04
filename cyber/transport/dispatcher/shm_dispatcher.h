@@ -95,17 +95,14 @@ void ShmDispatcher::AddListener(const RoleAttributes& self_attr,
 }
 
 template <typename MessageT>
-void ShmDispatcher::AddListener(const RoleAttributes& self_attr,
-                                const RoleAttributes& opposite_attr,
-                                const MessageListener<MessageT>& listener) {
-  // FIXME: make it more clean
-  auto listener_adapter = [listener](const std::shared_ptr<ReadableBlock>& rb,
-                                     const MessageInfo& msg_info) {
-    auto msg = std::make_shared<MessageT>();
-    RETURN_IF(!message::ParseFromArray(
-        rb->buf, static_cast<int>(rb->block->msg_size()), msg.get()));
-    listener(msg, msg_info);
-  };
+void ShmDispatcher::AddListener(const RoleAttributes& self_attr, const RoleAttributes& opposite_attr, const MessageListener<MessageT>& listener) {
+	// FIXME: make it more clean
+	auto listener_adapter = [listener](const std::shared_ptr<ReadableBlock>& rb, const MessageInfo& msg_info) 
+	{
+		auto msg = std::make_shared<MessageT>();
+		RETURN_IF(!message::ParseFromArray(rb->buf, static_cast<int>(rb->block->msg_size()), msg.get()));
+		listener(msg, msg_info);
+	};
 
   Dispatcher::AddListener<ReadableBlock>(self_attr, opposite_attr,
                                          listener_adapter);

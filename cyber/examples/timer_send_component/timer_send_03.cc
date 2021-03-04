@@ -27,7 +27,7 @@ bool TimerComponentSender_03::Init() {
 bool TimerComponentSender_03::Proc() 
 {
 	static int i = 0;
-	static std::string data(10240,'a');
+	static std::string data(8192,'a');
 	auto out_msg = std::make_shared<TestPackage>();
 	out_msg->set_seq(i++);
 	out_msg->set_timestamp(Time::Now().ToNanosecond());
