@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright 2018 The Apollo Authors. All Rights Reserved.
+ * Copyright 2018 The ZhiTo Authors. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,28 +23,43 @@
 using apollo::cyber::Rate;
 using apollo::cyber::Time;
 using apollo::cyber::examples::proto::Chatter;
+using apollo::cyber::examples::proto::TestPackage;
 
-std::string data(10240,'a');
 
 int main(int argc, char *argv[]) {
-  // init cyber framework
-  apollo::cyber::Init(argv[0]);
-  // create talker node
-  auto talker_node = apollo::cyber::CreateNode("talker");
-  // create talker
-  auto talker = talker_node->CreateWriter<Chatter>("channel/chatter");
-  Rate rate(125.0);
-  uint64_t seq = 0;
-  while (apollo::cyber::OK()) {
-    auto msg = std::make_shared<Chatter>();
-    msg->set_timestamp(Time::Now().ToNanosecond());
-    msg->set_lidar_timestamp(Time::Now().ToNanosecond());
-    msg->set_seq(seq);
-    msg->set_content(data);
-    talker->Write(msg);
-    AINFO << "talker sent a message! No. " << seq;
-    seq++;
-    rate.Sleep();
-  }
-  return 0;
+	double rete_param;
+	std::string DATA_10KB(10240,'a');
+	std::string DATA_20KB(20480,'a');
+	std::string DATA_30KB(30720,'a');
+	std::string DATA_100KB(102400,'a');
+	
+	std::cout<<argc<<std::endl;
+	if(argc<2)
+	{
+		std::cout<<"Please select the rete to send the package"<<std::endl;
+		return 0;
+	} else {
+		rete_param =  atof(argv[1]);
+		std::cout<<"Select "<<rete_param<<" to send the package"<<std::endl;
+	}
+	
+	// init cyber framework
+	apollo::cyber::Init(argv[0]);
+	// create talker node
+	auto talker_node = apollo::cyber::CreateNode("talker_01");
+	// create talker
+	auto talker = talker_node->CreateWriter<Chatter>("channel/chatter_01");
+	Rate rate(rete_param);
+	uint64_t seq = 0;
+	while (apollo::cyber::OK()) {
+		auto msg = std::make_shared<Chatter>();
+		msg->set_timestamp(Time::Now().ToNanosecond());
+		msg->set_lidar_timestamp(Time::Now().ToNanosecond());
+		msg->set_seq(seq);
+		msg->set_content(DATA_10KB);
+		talker->Write(msg);
+		seq++;
+		rate.Sleep();
+	}
+	return 0;
 }

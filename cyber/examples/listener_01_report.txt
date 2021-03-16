@@ -1,0 +1,105 @@
+###############################################################
+##################  Performance Reporter  #####################
+###############################################################
+Test Package Size     :
+10240 Bytes
+Test Batch Nums     :
+300000 Loops
+Test Start Time Point      :
+2021-03-16 10:21:33.041285036
+Test End Time Point      :
+2021-03-16 10:21:44.368397549
+Loss Rate     :
+   0 %
+Throughtput     :
+266 MBytes per Seconds
+###############################################################
+##################  Performance Reporter  #####################
+###############################################################
+Test Package Size     :
+20480 Bytes
+Test Batch Nums     :
+300000 Loops
+Test Start Time Point      :
+2021-03-16 10:25:02.732314454
+Test End Time Point      :
+2021-03-16 10:25:13.515537334
+Loss Rate     :
+   0 %
+Throughtput     :
+585 MBytes per Seconds
+###############################################################
+##################  Performance Reporter  #####################
+###############################################################
+Test Package Size     :
+30720 Bytes
+Test Batch Nums     :
+300000 Loops
+Test Start Time Point      :
+2021-03-16 10:26:56.912015702
+Test End Time Point      :
+2021-03-16 10:27:07.543327603
+Loss Rate     :
+   0 %
+Throughtput     :
+878 MBytes per Seconds
+###############################################################
+##################  Performance Reporter  #####################
+###############################################################
+Test Package Size     :
+30720 Bytes
+Test Batch Nums     :
+300000 Loops
+Test Start Time Point      :
+2021-03-16 10:29:44.113823288
+Test End Time Point      :
+2021-03-16 10:29:55.029896079
+Loss Rate     :
+   0 %
+Throughtput     :
+878 MBytes per Seconds
+###############################################################
+##################  Performance Reporter  #####################
+###############################################################
+Test Package Size     :
+102400 Bytes
+Test Batch Nums     :
+300000 Loops
+Test Start Time Point      :
+2021-03-16 10:33:25.350206792
+Test End Time Point      :
+2021-03-16 10:33:42.039308314
+Loss Rate     :
+   0 %
+Throughtput     :
+1831 MBytes per Seconds
+###############################################################
+##################  Performance Reporter  #####################
+###############################################################
+Test Package Size     :
+102400 Bytes
+Test Batch Nums     :
+300000 Loops
+Test Start Time Point      :
+2021-03-16 10:45:32.595588489
+Test End Time Point      :
+2021-03-16 10:45:49.280236118
+Loss Rate     :
+   0 %
+Throughtput     :
+1831 MBytes per Seconds
+###############################################################
+##################  Performance Reporter  #####################
+###############################################################
+Test Package Size     :
+102400 Bytes
+Test Batch Nums     :
+300000 Loops
+Test Start Time Point      :
+2021-03-16 10:46:11.043670476
+Test End Time Point      :
+2021-03-16 10:46:27.724719738
+Loss Rate     :
+   0 %
+Throughtput     :
+1831 MBytes per Seconds
