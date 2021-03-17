@@ -1,0 +1,25 @@
+# install Notes 3rd libs #
+
+1,  absl use -DBUILD_SHARED_LIBS=ON
+2,  flann sudo apt-get install liblz4-dev
+3,  yaml-cpp buid with SHARED_LIBS
+4,  google test build with SHARED_LIBS
+5,  boost sudo apt-get install libboost-all-dev
+6,  sudo apt-get install libblas-dev liblapack-dev (* optional)
+7,  eigen sudo ln -s /usr/include/eigen3/Eigen /usr/include/Eigen
+        (1) cd /usr/local/include
+        (2) sudo ln -sf eigen3/Eigen Eigen
+        (3) sudo ln -sf eigen3/unsupported unsupported
+8,  gflag -DBUILD_SHARED_LIBS=ON
+9,  glog  -DBUILD_SHARED_LIBS=ON
+10, sudo apt-get install uuid-dev (by apt-get)
+11, sudo apt-get install libpoco-dev (by apt-get)
+12, fastRTPS use :
+        (1) proto_buf 3.3
+        (2) googletest 1.8
+        (3) use -fPIC for g++ flags
+        (4) install tinyxml2 in thirdparty dir
+13, pcl
+14, vtk
+15, osqp lib
+16, map proj-6.0.0 install sqlit3
