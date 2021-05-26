@@ -91,7 +91,7 @@ target_link_libraries(mainboard cyber)
 target_compile_options(mainboard PRIVATE -Og)
 
 #build examples
-add_subdirectory(cyber/examples)
+#add_subdirectory(cyber/examples)
 
 #TODO:to solve py_wrapper compile error
 #build python wrapper
