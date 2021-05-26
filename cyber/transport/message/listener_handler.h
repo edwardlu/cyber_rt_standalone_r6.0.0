@@ -159,16 +159,15 @@ void ListenerHandler<MessageT>::Disconnect(uint64_t self_id, uint64_t oppo_id) {
 }
 
 template <typename MessageT>
-void ListenerHandler<MessageT>::Run(const Message& msg,
-                                    const MessageInfo& msg_info) {
-  signal_(msg, msg_info);
-  uint64_t oppo_id = msg_info.sender_id().HashValue();
-  ReadLockGuard<AtomicRWLock> lock(rw_lock_);
-  if (signals_.find(oppo_id) == signals_.end()) {
-    return;
-  }
+void ListenerHandler<MessageT>::Run(const Message& msg, const MessageInfo& msg_info) {
+	signal_(msg, msg_info);
+	uint64_t oppo_id = msg_info.sender_id().HashValue();
+	ReadLockGuard<AtomicRWLock> lock(rw_lock_);
+	if (signals_.find(oppo_id) == signals_.end()) {
+		return;
+	}
 
-  (*signals_[oppo_id])(msg, msg_info);
+	(*signals_[oppo_id])(msg, msg_info);
 }
 
 template <typename MessageT>

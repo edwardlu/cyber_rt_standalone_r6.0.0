@@ -142,27 +142,26 @@ int FullByteSize(const T& message) {
 }
 
 template <typename T>
-typename std::enable_if<HasParseFromArray<T>::value, bool>::type ParseFromArray(
-    const void* data, int size, T* message) {
-  return message->ParseFromArray(data, size);
+typename std::enable_if<HasParseFromArray<T>::value, bool>::type ParseFromArray(const void* data, int size, T* message) {
+	return message->ParseFromArray(data, size);
 }
 
 template <typename T>
 typename std::enable_if<!HasParseFromArray<T>::value, bool>::type
 ParseFromArray(const void* data, int size, T* message) {
-  return false;
+	return false;
 }
 
 template <typename T>
 typename std::enable_if<HasParseFromString<T>::value, bool>::type
 ParseFromString(const std::string& str, T* message) {
-  return message->ParseFromString(str);
+	return message->ParseFromString(str);
 }
 
 template <typename T>
 typename std::enable_if<!HasParseFromString<T>::value, bool>::type
 ParseFromString(const std::string& str, T* message) {
-  return false;
+	return false;
 }
 
 template <typename T>

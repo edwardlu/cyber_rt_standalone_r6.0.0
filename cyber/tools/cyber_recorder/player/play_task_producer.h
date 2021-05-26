@@ -39,51 +39,51 @@ namespace cyber {
 namespace record {
 
 class PlayTaskProducer {
- public:
-  using NodePtr = std::shared_ptr<Node>;
-  using ThreadPtr = std::unique_ptr<std::thread>;
-  using TaskBufferPtr = std::shared_ptr<PlayTaskBuffer>;
-  using RecordReaderPtr = std::shared_ptr<RecordReader>;
-  using WriterPtr = std::shared_ptr<Writer<message::RawMessage>>;
-  using WriterMap = std::unordered_map<std::string, WriterPtr>;
-  using MessageTypeMap = std::unordered_map<std::string, std::string>;
+public:
+	using NodePtr = std::shared_ptr<Node>;
+	using ThreadPtr = std::unique_ptr<std::thread>;
+	using TaskBufferPtr = std::shared_ptr<PlayTaskBuffer>;
+	using RecordReaderPtr = std::shared_ptr<RecordReader>;
+	using WriterPtr = std::shared_ptr<Writer<message::RawMessage>>;
+	using WriterMap = std::unordered_map<std::string, WriterPtr>;
+	using MessageTypeMap = std::unordered_map<std::string, std::string>;
 
-  PlayTaskProducer(const TaskBufferPtr& task_buffer,
-                   const PlayParam& play_param);
-  virtual ~PlayTaskProducer();
+	PlayTaskProducer(const TaskBufferPtr& task_buffer,
+	const PlayParam& play_param);
+	virtual ~PlayTaskProducer();
 
-  bool Init();
-  void Start();
-  void Stop();
+	bool Init();
+	void Start();
+	void Stop();
 
-  const PlayParam& play_param() const { return play_param_; }
-  bool is_stopped() const { return is_stopped_.load(); }
+	const PlayParam& play_param() const { return play_param_; }
+	bool is_stopped() const { return is_stopped_.load(); }
 
- private:
-  bool ReadRecordInfo();
-  bool UpdatePlayParam();
-  bool CreateWriters();
-  void ThreadFunc();
+private:
+	bool ReadRecordInfo();
+	bool UpdatePlayParam();
+	bool CreateWriters();
+	void ThreadFunc();
 
-  PlayParam play_param_;
-  TaskBufferPtr task_buffer_;
-  ThreadPtr produce_th_;
+	PlayParam play_param_;
+	TaskBufferPtr task_buffer_;
+	ThreadPtr produce_th_;
 
-  std::atomic<bool> is_initialized_;
-  std::atomic<bool> is_stopped_;
+	std::atomic<bool> is_initialized_;
+	std::atomic<bool> is_stopped_;
 
-  NodePtr node_;
-  WriterMap writers_;
-  MessageTypeMap msg_types_;
-  std::vector<RecordReaderPtr> record_readers_;
+	NodePtr node_;
+	WriterMap writers_;
+	MessageTypeMap msg_types_;
+	std::vector<RecordReaderPtr> record_readers_;
 
-  uint64_t earliest_begin_time_;
-  uint64_t latest_end_time_;
-  uint64_t total_msg_num_;
+	uint64_t earliest_begin_time_;
+	uint64_t latest_end_time_;
+	uint64_t total_msg_num_;
 
-  static const uint32_t kMinTaskBufferSize;
-  static const uint32_t kPreloadTimeSec;
-  static const uint64_t kSleepIntervalNanoSec;
+	static const uint32_t kMinTaskBufferSize;
+	static const uint32_t kPreloadTimeSec;
+	static const uint64_t kSleepIntervalNanoSec;
 };
 
 }  // namespace record

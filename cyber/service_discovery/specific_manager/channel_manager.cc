@@ -57,18 +57,17 @@ void ChannelManager::GetChannelNames(std::vector<std::string>* channels) {
             std::back_inserter(*channels));
 }
 
-void ChannelManager::GetProtoDesc(const std::string& channel_name,
-                                  std::string* proto_desc) {
-  RETURN_IF_NULL(proto_desc);
-  uint64_t key = common::GlobalData::RegisterChannel(channel_name);
-  RolePtr writer = nullptr;
-  if (!channel_writers_.Search(key, &writer)) {
-    return;
-  }
+void ChannelManager::GetProtoDesc(const std::string& channel_name, std::string* proto_desc) {
+	RETURN_IF_NULL(proto_desc);
+	uint64_t key = common::GlobalData::RegisterChannel(channel_name);
+	RolePtr writer = nullptr;
+	if (!channel_writers_.Search(key, &writer)) {
+		return;
+	}
 
-  if (writer->attributes().has_proto_desc()) {
-    *proto_desc = writer->attributes().proto_desc();
-  }
+	if (writer->attributes().has_proto_desc()) {
+		*proto_desc = writer->attributes().proto_desc();
+	}
 }
 
 void ChannelManager::GetMsgType(const std::string& channel_name,
@@ -208,34 +207,33 @@ FlowDirection ChannelManager::GetFlowDirection(
   return node_graph_.GetDirectionOf(lhs, rhs);
 }
 
-bool ChannelManager::IsMessageTypeMatching(const std::string& lhs,
-                                           const std::string& rhs) {
-  if (lhs == rhs) {
-    return true;
-  }
-  if (exempted_msg_types_.count(lhs) > 0) {
-    return true;
-  }
-  if (exempted_msg_types_.count(rhs) > 0) {
-    return true;
-  }
-  return false;
+bool ChannelManager::IsMessageTypeMatching(const std::string& lhs, const std::string& rhs) {
+	if (lhs == rhs) {
+		return true;
+	}
+	if (exempted_msg_types_.count(lhs) > 0) {
+		return true;
+	}
+	if (exempted_msg_types_.count(rhs) > 0) {
+		return true;
+	}
+	return false;
 }
 
 bool ChannelManager::Check(const RoleAttributes& attr) {
-  RETURN_VAL_IF(!attr.has_channel_name(), false);
-  RETURN_VAL_IF(!attr.has_channel_id(), false);
-  RETURN_VAL_IF(!attr.has_id(), false);
-  return true;
+	RETURN_VAL_IF(!attr.has_channel_name(), false);
+	RETURN_VAL_IF(!attr.has_channel_id(), false);
+	RETURN_VAL_IF(!attr.has_id(), false);
+	return true;
 }
 
 void ChannelManager::Dispose(const ChangeMsg& msg) {
-  if (msg.operate_type() == OperateType::OPT_JOIN) {
-    DisposeJoin(msg);
-  } else {
-    DisposeLeave(msg);
-  }
-  Notify(msg);
+	if (msg.operate_type() == OperateType::OPT_JOIN) {
+		DisposeJoin(msg);
+	} else {
+		DisposeLeave(msg);
+	}
+	Notify(msg);
 }
 
 void ChannelManager::OnTopoModuleLeave(const std::string& host_name,
@@ -269,28 +267,26 @@ void ChannelManager::OnTopoModuleLeave(const std::string& host_name,
 }
 
 void ChannelManager::DisposeJoin(const ChangeMsg& msg) {
-  ScanMessageType(msg);
+	ScanMessageType(msg);
 
-  Vertice v(msg.role_attr().node_name());
-  Edge e;
-  e.set_value(msg.role_attr().channel_name());
-  if (msg.role_type() == RoleType::ROLE_WRITER) {
-    if (msg.role_attr().has_proto_desc() &&
-        msg.role_attr().proto_desc() != "") {
-      message::ProtobufFactory::Instance()->RegisterMessage(
-          msg.role_attr().proto_desc());
-    }
-    auto role = std::make_shared<RoleWriter>(msg.role_attr(), msg.timestamp());
-    node_writers_.Add(role->attributes().node_id(), role);
-    channel_writers_.Add(role->attributes().channel_id(), role);
-    e.set_src(v);
-  } else {
-    auto role = std::make_shared<RoleReader>(msg.role_attr(), msg.timestamp());
-    node_readers_.Add(role->attributes().node_id(), role);
-    channel_readers_.Add(role->attributes().channel_id(), role);
-    e.set_dst(v);
-  }
-  node_graph_.Insert(e);
+	Vertice v(msg.role_attr().node_name());
+	Edge e;
+	e.set_value(msg.role_attr().channel_name());
+	if (msg.role_type() == RoleType::ROLE_WRITER) {
+		if (msg.role_attr().has_proto_desc() && msg.role_attr().proto_desc() != "") {
+			message::ProtobufFactory::Instance()->RegisterMessage(msg.role_attr().proto_desc());
+		}
+		auto role = std::make_shared<RoleWriter>(msg.role_attr(), msg.timestamp());
+		node_writers_.Add(role->attributes().node_id(), role);
+		channel_writers_.Add(role->attributes().channel_id(), role);
+		e.set_src(v);
+	} else {
+		auto role = std::make_shared<RoleReader>(msg.role_attr(), msg.timestamp());
+		node_readers_.Add(role->attributes().node_id(), role);
+		channel_readers_.Add(role->attributes().channel_id(), role);
+		e.set_dst(v);
+	}
+	node_graph_.Insert(e);
 }
 
 void ChannelManager::DisposeLeave(const ChangeMsg& msg) {

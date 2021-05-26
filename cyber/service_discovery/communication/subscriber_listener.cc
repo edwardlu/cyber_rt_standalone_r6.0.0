@@ -25,30 +25,30 @@ namespace cyber {
 namespace service_discovery {
 
 SubscriberListener::SubscriberListener(const NewMsgCallback& callback)
-    : callback_(callback) {}
+	: callback_(callback) {}
 
 SubscriberListener::~SubscriberListener() {
-  std::lock_guard<std::mutex> lck(mutex_);
-  callback_ = nullptr;
+	std::lock_guard<std::mutex> lck(mutex_);
+	callback_ = nullptr;
 }
 
 void SubscriberListener::onNewDataMessage(eprosima::fastrtps::Subscriber* sub) {
-  RETURN_IF_NULL(callback_);
+	RETURN_IF_NULL(callback_);
 
-  std::lock_guard<std::mutex> lock(mutex_);
-  eprosima::fastrtps::SampleInfo_t m_info;
-  cyber::transport::UnderlayMessage m;
-  RETURN_IF(!sub->takeNextData(reinterpret_cast<void*>(&m), &m_info));
-  RETURN_IF(m_info.sampleKind != eprosima::fastrtps::ALIVE);
+	std::lock_guard<std::mutex> lock(mutex_);
+	eprosima::fastrtps::SampleInfo_t m_info;
+	cyber::transport::UnderlayMessage m;
+	RETURN_IF(!sub->takeNextData(reinterpret_cast<void*>(&m), &m_info));
+	RETURN_IF(m_info.sampleKind != eprosima::fastrtps::ALIVE);
 
-  callback_(m.data());
+	callback_(m.data());
 }
 
 void SubscriberListener::onSubscriptionMatched(
-    eprosima::fastrtps::Subscriber* sub,
-    eprosima::fastrtps::MatchingInfo& info) {
-  (void)sub;
-  (void)info;
+	eprosima::fastrtps::Subscriber* sub,
+	eprosima::fastrtps::MatchingInfo& info) {
+	(void)sub;
+	(void)info;
 }
 
 }  // namespace service_discovery

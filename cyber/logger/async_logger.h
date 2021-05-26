@@ -129,36 +129,36 @@ class AsyncLogger : public google::base::Logger {
   // as efficient as it could be. It's better to make the buffers just be
   // Arenas and allocate both the message data and Msg struct from them, forming
   // a linked list.
-  struct Msg {
-    time_t ts;
-    std::string message;
-    int32_t level;
-    Msg() : ts(0), message(), level(google::INFO) {}
-    Msg(time_t ts, std::string&& message, int32_t level)
-        : ts(ts), message(std::move(message)), level(level) {}
-    Msg(const Msg& rsh) {
-      ts = rsh.ts;
-      message = rsh.message;
-      level = rsh.level;
-    }
-    Msg(Msg&& rsh) {
-      ts = rsh.ts;
-      message = rsh.message;
-      level = rsh.level;
-    }
-    Msg& operator=(Msg&& rsh) {
-      ts = rsh.ts;
-      message = std::move(rsh.message);
-      level = rsh.level;
-      return *this;
-    }
-    Msg& operator=(const Msg& rsh) {
-      ts = rsh.ts;
-      message = rsh.message;
-      level = rsh.level;
-      return *this;
-    }
-  };
+struct Msg {
+	time_t ts;
+	std::string message;
+	int32_t level;
+	Msg() : ts(0), message(), level(google::INFO) {}
+	Msg(time_t ts, std::string&& message, int32_t level)
+		: ts(ts), message(std::move(message)), level(level) {}
+	Msg(const Msg& rsh) {
+		ts = rsh.ts;
+		message = rsh.message;
+		level = rsh.level;
+	}
+	Msg(Msg&& rsh) {
+		ts = rsh.ts;
+		message = rsh.message;
+		level = rsh.level;
+	}
+	Msg& operator=(Msg&& rsh) {
+		ts = rsh.ts;
+		message = std::move(rsh.message);
+		level = rsh.level;
+		return *this;
+	}
+	Msg& operator=(const Msg& rsh) {
+		ts = rsh.ts;
+		message = rsh.message;
+		level = rsh.level;
+		return *this;
+	}
+};
 
   void RunThread();
   void FlushBuffer(const std::unique_ptr<std::deque<Msg>>& msg);

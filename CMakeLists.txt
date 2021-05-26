@@ -12,12 +12,12 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
 set(CMAKE_INCLUDE_SYSTEM_FLAG_C "-I")
 set(CMAKE_INCLUDE_SYSTEM_FLAG_CXX "-I" CACHE STRING "" FORCE )
-#set(CMAKE_INCLUDE_SYSTEM_FLAG_CUDA "-I" CACHE STRING "" FORCE )
 set(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -O0 -Wall")
 set(CMAKE_BUILD_TYPE "Release")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -fPIC -std=c++11")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -fPIC -std=c++11")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC -g")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -g")
 
+set(GENERATE_PROTO "ON")
 enable_language(ASM)
 
 if(${CMAKE_SYSTEM_PROCESSOR} MATCHES "x86_64" OR ${CMAKE_SYSTEM_PROCESSOR} MATCHES "core2-64")
@@ -32,8 +32,14 @@ endif()
 #include dependencies
 include(cmake/Dependencies.cmake)
 
+include(cmake/macros.cmake)
+
+#include_directories
+include_directories(${PROJECT_BINARY_DIR} ${CMAKE_SOURCE_DIR})
+
 #build proto files
 add_subdirectory(cyber/proto)
+
 #collect source files
 file(GLOB CYBER_SRCS 
 	"${PROJECT_SOURCE_DIR}/cyber/base/*.cc"
@@ -67,20 +73,16 @@ file(GLOB CYBER_SRCS
 	"${PROJECT_SOURCE_DIR}/cyber/transport/*/*.cc"
 	"${PROJECT_SOURCE_DIR}/cyber/*.cc"
 	"${PROJECT_SOURCE_DIR}/cyber/sysmo/*.cc"
-	"${PROJECT_SOURCE_DIR}/cyber/proto/*.cc"
+	"${PROJECT_SOURCE_DIR}/build/cyber/proto/*.cc"
 	)
 
 set(CYBER_TEST_SRCS ${CYBER_SRCS})
 list(FILTER CYBER_TEST_SRCS INCLUDE REGEX .*test[.]cc )
 list(FILTER CYBER_SRCS EXCLUDE REGEX .*test[.]cc )
 
-#include_directories
-include_directories(${PROJECT_BINARY_DIR})
-
 #build cyber library
 add_library(cyber SHARED ${CYBER_SRCS})
-#target_link_libraries(cyber cyber_proto atomic fastrtps fastcdr dl rt tinyxml2 glog gflags PocoFoundation uuid pthread)
-target_link_libraries(cyber protobuf atomic fastrtps fastcdr dl rt tinyxml2 glog gflags PocoFoundation uuid pthread)
+target_link_libraries(cyber protobuf atomic fastrtps fastcdr dl rt tinyxml2 glog gflags PocoFoundation uuid)
 
 #build mainboard
 file(GLOB CYBER_MAINBOARD_SRCS "${PROJECT_SOURCE_DIR}/cyber/mainboard/*.cc")
@@ -98,6 +100,9 @@ add_subdirectory(cyber/examples)
 #build tools 
 add_subdirectory(cyber/tools)
 
+#build modules
+add_subdirectory(modules/drivers)
+
 #build tests
 # FOREACH(TEST_FILE ${CYBER_TEST_SRCS})  
 # 	string( REGEX MATCH "[A-Za-z0-9_]*[.]cc" FILE_NAME ${TEST_FILE} ) 
@@ -109,6 +114,7 @@ add_subdirectory(cyber/tools)
 # ENDFOREACH(TEST_FILE)
 
 #install
+#install(TARGETS cyber mainboard 
 install(TARGETS cyber mainboard 
  		LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
 		RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})

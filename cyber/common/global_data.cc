@@ -40,30 +40,30 @@ AtomicHashMap<uint64_t, std::string, 256> GlobalData::task_id_map_;
 namespace {
 const std::string& kEmptyString = "";
 std::string program_path() {
-  char path[PATH_MAX];
-  auto len = readlink("/proc/self/exe", path, sizeof(path) - 1);
-  if (len == -1) {
-    return kEmptyString;
-  }
-  path[len] = '\0';
-  return std::string(path);
+	char path[PATH_MAX];
+	auto len = readlink("/proc/self/exe", path, sizeof(path) - 1);
+	if (len == -1) {
+		return kEmptyString;
+	}
+	path[len] = '\0';
+	return std::string(path);
 }
 }  // namespace
 
 GlobalData::GlobalData() {
-  InitHostInfo();
-  ACHECK(InitConfig());
-  process_id_ = getpid();
-  auto prog_path = program_path();
-  if (!prog_path.empty()) {
-    process_group_ = GetFileName(prog_path) + "_" + std::to_string(process_id_);
-  } else {
-    process_group_ = "cyber_default_" + std::to_string(process_id_);
-  }
+	InitHostInfo();
+	ACHECK(InitConfig());
+	process_id_ = getpid();
+	auto prog_path = program_path();
+	if (!prog_path.empty()) {
+		process_group_ = GetFileName(prog_path) + "_" + std::to_string(process_id_);
+	} else {
+		process_group_ = "cyber_default_" + std::to_string(process_id_);
+	}
 
-  const auto& run_mode_conf = config_.run_mode_conf();
-  run_mode_ = run_mode_conf.run_mode();
-  clock_mode_ = run_mode_conf.clock_mode();
+	const auto& run_mode_conf = config_.run_mode_conf();
+	run_mode_ = run_mode_conf.run_mode();
+	clock_mode_ = run_mode_conf.clock_mode();
 }
 
 GlobalData::~GlobalData() {}
@@ -71,17 +71,17 @@ GlobalData::~GlobalData() {}
 int GlobalData::ProcessId() const { return process_id_; }
 
 void GlobalData::SetProcessGroup(const std::string& process_group) {
-  process_group_ = process_group;
+	process_group_ = process_group;
 }
 const std::string& GlobalData::ProcessGroup() const { return process_group_; }
 
 void GlobalData::SetComponentNums(const int component_nums) {
-  component_nums_ = component_nums;
+	component_nums_ = component_nums;
 }
 int GlobalData::ComponentNums() const { return component_nums_; }
 
 void GlobalData::SetSchedName(const std::string& sched_name) {
-  sched_name_ = sched_name;
+	sched_name_ = sched_name;
 }
 const std::string& GlobalData::SchedName() const { return sched_name_; }
 

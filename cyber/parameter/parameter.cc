@@ -96,17 +96,16 @@ Parameter::Parameter(const std::string& name, const std::string& msg_str,
   param_.set_proto_desc(proto_desc);
 }
 
-Parameter::Parameter(const std::string& name,
-                     const google::protobuf::Message& msg) {
-  param_.set_name(name);
-  std::string str;
-  msg.SerializeToString(&str);
-  std::string desc;
-  ProtobufFactory::GetDescriptorString(msg, &desc);
-  param_.set_string_value(str);
-  param_.set_type(ParamType::PROTOBUF);
-  param_.set_type_name(msg.GetDescriptor()->full_name());
-  param_.set_proto_desc(desc);
+Parameter::Parameter(const std::string& name, const google::protobuf::Message& msg) {
+	param_.set_name(name);
+	std::string str;
+	msg.SerializeToString(&str);
+	std::string desc;
+	ProtobufFactory::GetDescriptorString(msg, &desc);
+	param_.set_string_value(str);
+	param_.set_type(ParamType::PROTOBUF);
+	param_.set_type_name(msg.GetDescriptor()->full_name());
+	param_.set_proto_desc(desc);
 }
 
 void Parameter::FromProtoParam(const Param& param) { param_.CopyFrom(param); }
@@ -114,48 +113,48 @@ void Parameter::FromProtoParam(const Param& param) { param_.CopyFrom(param); }
 Param Parameter::ToProtoParam() const { return param_; }
 
 std::string Parameter::DebugString() const {
-  std::stringstream ss;
-  ss << "{name: \"" << param_.name() << "\", ";
-  ss << "type: \"" << TypeName() << "\", ";
-  ss << "value: ";
-  switch (Type()) {
-    case ParamType::BOOL: {
-      ss << (AsBool() ? "true" : "false");
-      break;
-    }
-    case ParamType::INT: {
-      ss << std::to_string(AsInt64());
-      break;
-    }
-    case ParamType::DOUBLE: {
-      ss << std::to_string(AsDouble());
-      break;
-    }
-    case ParamType::STRING: {
-      ss << "\"" << AsString() << "\"";
-      break;
-    }
-    case ParamType::PROTOBUF: {
-      ProtobufFactory::Instance()->RegisterMessage(Descriptor());
-      auto message =
-          ProtobufFactory::Instance()->GenerateMessageByType(TypeName());
-      if (message != nullptr) {
-        message->ParseFromString(AsString());
-        ss << "\"" << message->ShortDebugString() << "\"";
-        delete message;
-      }
-      break;
-    }
-    case ParamType::NOT_SET: {
-      ss << "not set";
-      break;
-    }
-    default:
-      // do nothing
-      break;
-  }
-  ss << "}";
-  return ss.str();
+	std::stringstream ss;
+	ss << "{name: \"" << param_.name() << "\", ";
+	ss << "type: \"" << TypeName() << "\", ";
+	ss << "value: ";
+	switch (Type()) {
+	case ParamType::BOOL: {
+		ss << (AsBool() ? "true" : "false");
+		break;
+	}
+	case ParamType::INT: {
+		ss << std::to_string(AsInt64());
+		break;
+	}
+	case ParamType::DOUBLE: {
+		ss << std::to_string(AsDouble());
+		break;
+	}
+	case ParamType::STRING: {
+		ss << "\"" << AsString() << "\"";
+		break;
+	}
+	case ParamType::PROTOBUF: {
+		ProtobufFactory::Instance()->RegisterMessage(Descriptor());
+		auto message = ProtobufFactory::Instance()->GenerateMessageByType(TypeName());
+		
+		if (message != nullptr) {
+			message->ParseFromString(AsString());
+			ss << "\"" << message->ShortDebugString() << "\"";
+			delete message;
+		}
+		break;
+	}
+	case ParamType::NOT_SET: {
+		ss << "not set";
+		break;
+	}
+	default:
+		// do nothing
+		break;
+	}
+	ss << "}";
+	return ss.str();
 }
 
 }  // namespace cyber

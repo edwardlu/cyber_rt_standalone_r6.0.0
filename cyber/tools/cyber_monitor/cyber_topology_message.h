@@ -25,8 +25,8 @@
 namespace apollo {
 namespace cyber {
 namespace proto {
-class ChangeMsg;
-class RoleAttributes;
+	class ChangeMsg;
+	class RoleAttributes;
 }  // namespace proto
 }  // namespace cyber
 }  // namespace apollo

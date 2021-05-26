@@ -94,13 +94,14 @@ bool ConditionNotifier::Listen(int timeout_ms, ReadableInfo* info) {
 				ADEBUG << "seq[" << next_seq_ << "] is writing, can not read now.";
 			}
 		}
-
+		
 		if (timeout_us > 0) {
 			std::this_thread::sleep_for(std::chrono::microseconds(50));
 			timeout_us -= 50;
 		} else {
 			return false;
 		}
+
 	}
 	return false;
 }

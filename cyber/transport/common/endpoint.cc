@@ -23,18 +23,18 @@ namespace cyber {
 namespace transport {
 
 Endpoint::Endpoint(const RoleAttributes& attr)
-    : enabled_(false), id_(), attr_(attr) {
-  if (!attr_.has_host_name()) {
-    attr_.set_host_name(common::GlobalData::Instance()->HostName());
-  }
+	: enabled_(false), id_(), attr_(attr) {
+	if (!attr_.has_host_name()) {
+		attr_.set_host_name(common::GlobalData::Instance()->HostName());
+	}
 
-  if (!attr_.has_process_id()) {
-    attr_.set_process_id(common::GlobalData::Instance()->ProcessId());
-  }
+	if (!attr_.has_process_id()) {
+		attr_.set_process_id(common::GlobalData::Instance()->ProcessId());
+	}
 
-  if (!attr_.has_id()) {
-    attr_.set_id(id_.HashValue());
-  }
+	if (!attr_.has_id()) {
+		attr_.set_id(id_.HashValue());
+	}
 }
 
 Endpoint::~Endpoint() {}

@@ -54,26 +54,26 @@ class ChannelBuffer {
 };
 
 template <typename T>
-bool ChannelBuffer<T>::Fetch(uint64_t* index,
-                             std::shared_ptr<T>& m) {  // NOLINT
-  std::lock_guard<std::mutex> lock(buffer_->Mutex());
-  if (buffer_->Empty()) {
-    return false;
-  }
+bool ChannelBuffer<T>::Fetch(uint64_t* index, std::shared_ptr<T>& m) {  // NOLINT
+	std::lock_guard<std::mutex> lock(buffer_->Mutex());
+	if (buffer_->Empty()) {
+		return false;
+	}
 
-  if (*index == 0) {
-    *index = buffer_->Tail();
-  } else if (*index == buffer_->Tail() + 1) {
-    return false;
-  } else if (*index < buffer_->Head()) {
-    auto interval = buffer_->Tail() - *index;
-    AWARN << "channel[" << GlobalData::GetChannelById(channel_id_) << "] "
-          << "read buffer overflow, drop_message[" << interval << "] pre_index["
-          << *index << "] current_index[" << buffer_->Tail() << "] ";
-    *index = buffer_->Tail();
-  }
-  m = buffer_->at(*index);
-  return true;
+	if (*index == 0) {
+		*index = buffer_->Tail();
+	} else if (*index == buffer_->Tail() + 1) {
+		return false;
+	} else if (*index < buffer_->Head()) {
+		auto interval = buffer_->Tail() - *index;
+		AWARN << "channel[" << GlobalData::GetChannelById(channel_id_) << "] "
+			<< "read buffer overflow, drop_message[" << interval << "] pre_index["
+			<< *index << "] current_index[" << buffer_->Tail() << "] ";
+			*index = buffer_->Tail();
+	}
+	m = buffer_->at(*index);
+
+	return true;
 }
 
 template <typename T>

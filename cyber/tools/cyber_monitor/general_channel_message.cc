@@ -181,106 +181,96 @@ int GeneralChannelMessage::Render(const Screen* s, int key) {
 }
 
 void GeneralChannelMessage::RenderInfo(const Screen* s, int key, int* line_no) {
-  page_item_count_ = s->Height() - *line_no;
-  pages_ = static_cast<int>(readers_.size() + writers_.size() + *line_no) /
-               page_item_count_ +
-           1;
-  SplitPages(key);
+	page_item_count_ = s->Height() - *line_no;
+	pages_ = static_cast<int>(readers_.size() + writers_.size() + *line_no) / page_item_count_ + 1;
+	SplitPages(key);
 
-  bool has_reader = true;
-  std::vector<std::string>* vec = &readers_;
+	bool has_reader = true;
+	std::vector<std::string>* vec = &readers_;
 
-  auto iter = vec->cbegin();
-  unsigned int y = page_index_ * page_item_count_;
-  if (y < vec->size()) {
-    for (unsigned i = 0; i < y; ++i) {
-      ++iter;
-    }
-  } else {
-    y -= static_cast<unsigned int>(vec->size());
-    vec = &writers_;
-    iter = vec->cbegin();
-    while (y) {
-      ++iter;
-      --y;
-    }
+	auto iter = vec->cbegin();
+	unsigned int y = page_index_ * page_item_count_;
+	if (y < vec->size()) {
+		for (unsigned i = 0; i < y; ++i) {
+			++iter;
+		}
+	} else {
+		y -= static_cast<unsigned int>(vec->size());
+		vec = &writers_;
+		iter = vec->cbegin();
+		while (y) {
+			++iter;
+			--y;
+		}
 
-    has_reader = false;
-  }
+		has_reader = false;
+	}
 
-  if (has_reader) {
-    s->AddStr(0, (*line_no)++, "Readers:");
-    for (; iter != vec->cend(); ++iter) {
-      s->AddStr(ReaderWriterOffset, (*line_no)++, iter->c_str());
-    }
+	if (has_reader) {
+		s->AddStr(0, (*line_no)++, "Readers:");
+		for (; iter != vec->cend(); ++iter) {
+			s->AddStr(ReaderWriterOffset, (*line_no)++, iter->c_str());
+		}
 
-    ++(*line_no);
-    vec = &writers_;
-    iter = vec->cbegin();
-  }
+		++(*line_no);
+		vec = &writers_;
+		iter = vec->cbegin();
+	}
 
-  s->AddStr(0, (*line_no)++, "Writers:");
-  for (; iter != vec->cend(); ++iter) {
-    s->AddStr(ReaderWriterOffset, (*line_no)++, iter->c_str());
-  }
+	s->AddStr(0, (*line_no)++, "Writers:");
+	for (; iter != vec->cend(); ++iter) {
+		s->AddStr(ReaderWriterOffset, (*line_no)++, iter->c_str());
+	}
 }
 
-void GeneralChannelMessage::RenderDebugString(const Screen* s, int key,
-                                              int* line_no) {
-  if (has_message_come()) {
-    if (raw_msg_class_ == nullptr) {
-      auto rawFactory = apollo::cyber::message::ProtobufFactory::Instance();
-      raw_msg_class_ = rawFactory->GenerateMessageByType(message_type());
-    }
+void GeneralChannelMessage::RenderDebugString(const Screen* s, int key, int* line_no) {
+	if (has_message_come()) {
+		if (raw_msg_class_ == nullptr) {
+			auto rawFactory = apollo::cyber::message::ProtobufFactory::Instance();
+			raw_msg_class_ = rawFactory->GenerateMessageByType(message_type());
+		}
 
-    if (raw_msg_class_ == nullptr) {
-      s->AddStr(0, (*line_no)++, "Cannot Generate Message by Message Type");
-    } else {
-      s->AddStr(0, (*line_no)++, "FrameRatio: ");
+		if (raw_msg_class_ == nullptr) {
+			s->AddStr(0, (*line_no)++, "Cannot Generate Message by Message Type");
+		} else {
+			s->AddStr(0, (*line_no)++, "FrameRatio: ");
 
-      std::ostringstream out_str;
-      out_str << std::fixed << std::setprecision(FrameRatio_Precision)
-              << frame_ratio();
-      s->AddStr(out_str.str().c_str());
+			std::ostringstream out_str;
+			out_str << std::fixed << std::setprecision(FrameRatio_Precision)
+			<< frame_ratio();
+			s->AddStr(out_str.str().c_str());
 
-      decltype(channel_message_) channel_msg = CopyMsgPtr();
+			decltype(channel_message_) channel_msg = CopyMsgPtr();
 
-      if (channel_msg->message.size()) {
-        s->AddStr(0, (*line_no)++, "RawMessage Size: ");
-        out_str.str("");
-        out_str << channel_msg->message.size() << " Bytes";
-        if (channel_msg->message.size() >= kGB) {
-          out_str << " ("
-                  << static_cast<float>(channel_msg->message.size()) / kGB
-                  << " GB)";
-        } else if (channel_msg->message.size() >= kMB) {
-          out_str << " ("
-                  << static_cast<float>(channel_msg->message.size()) / kMB
-                  << " MB)";
-        } else if (channel_msg->message.size() >= kKB) {
-          out_str << " ("
-                  << static_cast<float>(channel_msg->message.size()) / kKB
-                  << " KB)";
-        }
-        s->AddStr(out_str.str().c_str());
-        if (raw_msg_class_->ParseFromString(channel_msg->message)) {
-          int lcount = LineCount(*raw_msg_class_, s->Width());
-          page_item_count_ = s->Height() - *line_no;
-          pages_ = lcount / page_item_count_ + 1;
-          SplitPages(key);
-          int jump_lines = page_index_ * page_item_count_;
-          jump_lines <<= 2;
-          jump_lines /= 5;
-          GeneralMessageBase::PrintMessage(this, *raw_msg_class_, &jump_lines,
-                                           s, line_no, 0);
-        } else {
-          s->AddStr(0, (*line_no)++, "Cannot parse the raw message");
-        }
-      } else {
-        s->AddStr(0, (*line_no)++, "The size of this raw Message is Zero");
-      }
-    }
-  } else {
-    s->AddStr(0, (*line_no)++, "No Message Came");
-  }
+			if (channel_msg->message.size()) {
+				s->AddStr(0, (*line_no)++, "RawMessage Size: ");
+				out_str.str("");
+				out_str << channel_msg->message.size() << " Bytes";
+				if (channel_msg->message.size() >= kGB) {
+					out_str << " (" << static_cast<float>(channel_msg->message.size()) / kGB << " GB)";
+				} else if (channel_msg->message.size() >= kMB) {
+					out_str << " (" << static_cast<float>(channel_msg->message.size()) / kMB << " MB)";
+				} else if (channel_msg->message.size() >= kKB) {
+					out_str << " (" << static_cast<float>(channel_msg->message.size()) / kKB << " KB)";
+				}
+				s->AddStr(out_str.str().c_str());
+				if (raw_msg_class_->ParseFromString(channel_msg->message)) {
+					int lcount = LineCount(*raw_msg_class_, s->Width());
+					page_item_count_ = s->Height() - *line_no;
+					pages_ = lcount / page_item_count_ + 1;
+					SplitPages(key);
+					int jump_lines = page_index_ * page_item_count_;
+					jump_lines <<= 2;
+					jump_lines /= 5;
+					GeneralMessageBase::PrintMessage(this, *raw_msg_class_, &jump_lines, s, line_no, 0);
+				} else {
+					s->AddStr(0, (*line_no)++, "Cannot parse the raw message");
+				}
+			} else {
+				s->AddStr(0, (*line_no)++, "The size of this raw Message is Zero");
+			}
+		}
+	} else {
+	s->AddStr(0, (*line_no)++, "No Message Came");
+	}
 }

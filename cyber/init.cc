@@ -72,15 +72,18 @@ void InitLogger(const char* binary_name) {
 	google::SetLogDestination(google::ERROR, "");
 	google::SetLogDestination(google::WARNING, "");
 	google::SetLogDestination(google::FATAL, "");
-
+	
 	// Init async logger
-	async_logger = new ::apollo::cyber::logger::AsyncLogger(
-	google::base::GetLogger(FLAGS_minloglevel));
+	async_logger = new ::apollo::cyber::logger::AsyncLogger(google::base::GetLogger(FLAGS_minloglevel));
 	google::base::SetLogger(FLAGS_minloglevel, async_logger);
 	async_logger->Start();
+
 }
 
-void StopLogger() { delete async_logger; }
+void StopLogger() { 
+	async_logger->Stop(); //lubin wait for async log to avoid Aborted
+	delete async_logger; 
+}
 
 }  // namespace
 
@@ -135,6 +138,7 @@ void Clear() {
 	if (GetState() == STATE_SHUTDOWN || GetState() == STATE_UNINITIALIZED) {
 		return;
 	}
+	
 	SysMo::CleanUp();
 	TaskManager::CleanUp();
 	TimingWheel::CleanUp();

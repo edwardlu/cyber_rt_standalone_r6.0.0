@@ -87,7 +87,7 @@ int Session::Connect(const struct sockaddr *addr, socklen_t addrlen) {
 
 int Session::Close() {
   ACHECK(fd_ != -1);
-
+  
   poll_handler_->Unblock();
   int res = close(fd_);
   fd_ = -1;

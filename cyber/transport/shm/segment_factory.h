@@ -24,8 +24,8 @@ namespace cyber {
 namespace transport {
 
 class SegmentFactory {
- public:
-  static SegmentPtr CreateSegment(uint64_t channel_id);
+public:
+	static SegmentPtr CreateSegment(uint64_t channel_id);
 };
 
 }  // namespace transport
