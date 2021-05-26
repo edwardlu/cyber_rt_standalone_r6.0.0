@@ -17,15 +17,15 @@ message(STATUS "main project dir: " ${PROJECT_SOURCE_DIR})
 
 set(PCL_LIBS
     pcl_common
-    pcl_cuda_features
-    pcl_io_ply
-    pcl_io
-    pcl_kdtree
-    pcl_octree
-    pcl_cuda_sample_consensus
-    pcl_search
-    pcl_cuda_segmentation
-    pcl_surface
+    #pcl_cuda_features
+    #pcl_io_ply
+    #pcl_io
+    #pcl_kdtree
+    #pcl_octree
+    #pcl_cuda_sample_consensus
+    #pcl_search
+    #pcl_cuda_segmentation
+    #pcl_surface
     pcl_visualization
 )
 

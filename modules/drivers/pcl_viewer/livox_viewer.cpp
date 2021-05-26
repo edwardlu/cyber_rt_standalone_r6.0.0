@@ -8,6 +8,7 @@
 #include "/media/lubin/extend/apollo_module_standalone/modules/drivers/livox/communication/protocol/livox_protocol.hpp"
 
 #define SHARED_MEM_ID 123456789111
+#define FILTER_VALURE 30
 
 using std::chrono::high_resolution_clock;
 
@@ -56,7 +57,7 @@ int main()
 				LivoxExtendRawPoint *pt = reinterpret_cast<LivoxExtendRawPoint *>(lidar_data->data);
 				for(int points = 0;points<96;points++)
 				{
-					if(pt[points].reflectivity < 30)
+					if(pt[points].reflectivity < FILTER_VALURE)
 					{
 						point.x = 0;
 						point.y = 0;
@@ -80,7 +81,7 @@ int main()
 				LivoxExtendRawPoint *pt = reinterpret_cast<LivoxExtendRawPoint *>(lidar_data->data);
 				for(int points = 0;points<96;points++)
 				{
-					if(pt[points].reflectivity < 50)
+					if(pt[points].reflectivity < FILTER_VALURE)
 					{
 						point.x = 0;
 						point.y = 0;
