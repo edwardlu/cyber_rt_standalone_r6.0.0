@@ -1,16 +1,24 @@
+#include <signal.h>
+
+#include <iostream>
 #include <chrono>
 #include <pcl/visualization/pcl_visualizer.h>
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
 
-#include "/media/lubin/extend/apollo_module_standalone/modules/drivers/livox/shared_mem/block_interface.h"
-#include "/media/lubin/extend/apollo_module_standalone/modules/drivers/livox/shared_mem/block_map.h"
-#include "/media/lubin/extend/apollo_module_standalone/modules/drivers/livox/communication/protocol/livox_protocol.hpp"
+#include "cyber_rt_standalone_r6.0.0/modules/drivers/livox/shared_mem/block_interface.h"
+#include "cyber_rt_standalone_r6.0.0/modules/drivers/livox/shared_mem/block_map.h"
+#include "cyber_rt_standalone_r6.0.0/modules/drivers/livox/communication/protocol/livox_protocol.hpp"
+
+#include <pcl/filters/passthrough.h>
+#include <pcl/filters/voxel_grid.h>
+#include "cuda_runtime.h"
+#include "../include/cudaFilter.h"
 
 #define SHARED_MEM_ID 123456789111
-#define FILTER_VALURE 30
 
 using std::chrono::high_resolution_clock;
+bool stop;
 
 uint64_t Now() {
 	auto now = high_resolution_clock::now();
@@ -29,24 +37,85 @@ void dump_block_info(struct block_desc *b_desc)
 	std::cout<<"block id   : "<<b_desc->blk_id<<std::endl;
 }
 
+void Getinfo(void)
+{
+	cudaDeviceProp prop;
+
+	int count = 0;
+	cudaGetDeviceCount(&count);
+	printf("\nGPU has cuda devices: %d\n", count);
+	for (int i = 0; i < count; ++i) {
+		cudaGetDeviceProperties(&prop, i);
+		printf("----device id: %d info----\n", i);
+		printf("  GPU : %s \n", prop.name);
+		printf("  Capbility: %d.%d\n", prop.major, prop.minor);
+		printf("  Global memory: %luMB\n", prop.totalGlobalMem >> 20);
+		printf("  Const memory: %luKB\n", prop.totalConstMem  >> 10);
+		printf("  SM in a block: %luKB\n", prop.sharedMemPerBlock >> 10);
+		printf("  warp size: %d\n", prop.warpSize);
+		printf("  threads in a block: %d\n", prop.maxThreadsPerBlock);
+		printf("  block dim: (%d,%d,%d)\n", prop.maxThreadsDim[0], prop.maxThreadsDim[1], prop.maxThreadsDim[2]);
+		printf("  grid dim: (%d,%d,%d)\n", prop.maxGridSize[0], prop.maxGridSize[1], prop.maxGridSize[2]);
+	}
+	printf("\n");
+}
+
+void sig_int(int sig_no)
+{
+	stop = true;
+}
+
 int main()
 {
+	signal(SIGINT,sig_int);
+
+	uint64_t timer1,timer2;
+
 	pcl::PointCloud<pcl::PointXYZ>::Ptr clouds(new pcl::PointCloud<pcl::PointXYZ>);
+	pcl::PointCloud<pcl::PointXYZ>::Ptr cloudDst(new pcl::PointCloud<pcl::PointXYZ>);
 	pcl::PointXYZ point;
-	pcl::visualization::PCLVisualizer viewer("test");
-	
+	pcl::visualization::PCLVisualizer viewer("viewer");
+	cloudDst->resize(1024*8);
+
+	float *inputData; //(float *)cloudSrc->points.data();
+	float *outputData; //(float *)cloudSrc->points.data();
+	float *input = NULL;
+	float *output = NULL;
+	unsigned int countLeft = 0;
+
 	block_interface shm_intf(SHARED_MEM_ID);
 	struct block_desc *ptr1 = shm_intf.get_block(0);
 	struct block_desc *ptr2 = shm_intf.get_block(1);
-		
+
 	dump_block_info(ptr1);
 	dump_block_info(ptr2);
-	
+
+	//CUDA functions
+	cudaStream_t stream = NULL;
+	cudaStreamCreate(&stream);
+
+	cudaMallocManaged(&input, sizeof(float)*4*24000,cudaMemAttachHost);
+	cudaStreamAttachMemAsync(stream, input);
+
+	cudaMallocManaged(&output,sizeof(float)*4*24000,cudaMemAttachHost);
+	cudaStreamAttachMemAsync(stream, output);
+
+	FilterType_t type;
+	cudaFilter filter(stream);
+	FilterParam_t setP;
+	type = VOXELGRID;
+	setP.type = type;
+	setP.voxelX = 0.1;
+	setP.voxelY = 0.1;
+	setP.voxelZ = 0.1;
+	filter.set(setP);
+
 	LivoxEthPacket *lidar_data;
 	LivoxExtendRawPoint *pt;
 	uint8_t *p;
-	
-	while(true) {
+
+	stop = false;
+	while(!stop) {
 		if((ptr1->in_use.load() == false)&&(ptr2->in_use.load() == true))
 		{
 			std::cout<<"a show"<<std::endl;
@@ -57,7 +126,7 @@ int main()
 				LivoxExtendRawPoint *pt = reinterpret_cast<LivoxExtendRawPoint *>(lidar_data->data);
 				for(int points = 0;points<96;points++)
 				{
-					if(pt[points].reflectivity < FILTER_VALURE)
+					if(pt[points].reflectivity < 30)
 					{
 						point.x = 0;
 						point.y = 0;
@@ -81,7 +150,7 @@ int main()
 				LivoxExtendRawPoint *pt = reinterpret_cast<LivoxExtendRawPoint *>(lidar_data->data);
 				for(int points = 0;points<96;points++)
 				{
-					if(pt[points].reflectivity < FILTER_VALURE)
+					if(pt[points].reflectivity < 0)
 					{
 						point.x = 0;
 						point.y = 0;
@@ -97,16 +166,31 @@ int main()
 				p = p+1362;
 			}
 		}
-		viewer.addPointCloud<pcl::PointXYZ>(clouds,"livox");
+		
+		timer1 = Now();
+		inputData = (float *)clouds->points.data();
+		outputData = (float *)cloudDst->points.data();
+		cudaMemcpyAsync(input,inputData,sizeof(float)*4*24000,cudaMemcpyHostToDevice,stream);
+		cudaStreamSynchronize(stream);
+
+		filter.filter(output, &countLeft, input, 24000);
+		checkCudaErrors(cudaMemcpyAsync(outputData, output, sizeof(float)*4*countLeft, cudaMemcpyDeviceToHost, stream));
+		cudaStreamSynchronize(stream);
+		timer2 = Now();
+
+		std::cout<<"Filter use total : second(s) "<<(timer2-timer1)/1000000000UL<<"ms "<<(timer2-timer1)%1000000000UL/1000/1000<<std::endl;
+
+		viewer.addPointCloud<pcl::PointXYZ>(cloudDst,"livox");
 		viewer.spinOnce(50);
 		viewer.removePointCloud("livox");
 		clouds->clear();
+
 	}
 
-	while(!viewer.wasStopped())
-	{
-		viewer.spinOnce(1000);  // Give the GUI 1000ms to handle events, then return
-	}
+	std::cout<<"################ End of pcl view function ################"<<std::endl;
+	cudaFree(input);
+	cudaFree(output);
+	cudaStreamDestroy(stream);
 
 	return 0;
 }

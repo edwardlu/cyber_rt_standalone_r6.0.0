@@ -10,27 +10,22 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 find_package(Boost REQUIRED COMPONENTS system filesystem thread)
 find_package(VTK REQUIRED)
 find_package(PCL REQUIRED)
+find_package(CUDA REQUIRED)
 
-include_directories(${PCL_INCLUDE_DIRS})
+include_directories(${PCL_INCLUDE_DIRS} ${CUDA_INCLUDE_DIRS})
 
 message(STATUS "main project dir: " ${PROJECT_SOURCE_DIR})
 
 set(PCL_LIBS
     pcl_common
-    #pcl_cuda_features
-    #pcl_io_ply
     #pcl_io
     #pcl_kdtree
     #pcl_octree
-    #pcl_cuda_sample_consensus
-    #pcl_search
-    #pcl_cuda_segmentation
-    #pcl_surface
     pcl_visualization
 )
 
 add_executable(pcl_viewer livox_viewer.cpp)
-target_link_libraries(pcl_viewer shared_blocks ${PCL_LIBS}
+target_link_libraries(pcl_viewer shared_blocks cudafilter ${PCL_LIBS} ${CUDA_LIBRARIES}
         boost_system
         boost_thread
         vtkRenderingLOD-8.2
