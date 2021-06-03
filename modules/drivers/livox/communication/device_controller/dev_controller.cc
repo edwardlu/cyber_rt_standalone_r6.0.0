@@ -1,10 +1,10 @@
 #include "dev_controller.hpp"
 
-lidar_dev_controller::lidar_dev_controller(uint8_t id):need_handshake(true),stop(false)
+lidar_dev_controller::lidar_dev_controller(uint8_t id):need_handshake(true),stop(false),pcl_receiver(nullptr)
 {
 	package.resize(MAX_MESSAGE_BUF_SIZE);
 	command.resize(MAX_MESSAGE_BUF_SIZE);
-	
+
 	lidar_dev_manager::get_instance().find_device(id,lidar_dev);
 	
 	server_addr.sin_family = AF_INET;
@@ -40,9 +40,13 @@ void lidar_dev_controller::stop_lidar_dev_controller()
 #ifdef GRACEFULE_QUIT_LIVOX
 	std::cout<<"stop_lidar_dev_controller"<<std::endl;
 #endif
-	pcl_receiver->stop_dev_pcl_receiver();
+	if(pcl_receiver != nullptr)
+	{
+		pcl_receiver->stop_dev_pcl_receiver();
+		delete pcl_receiver;
+	}
+	
 	stop = true;
-	delete pcl_receiver;
 }
 
 void lidar_dev_controller::set_device_info(struct sockaddr_in &livox)

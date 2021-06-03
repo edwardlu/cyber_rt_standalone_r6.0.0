@@ -54,9 +54,12 @@ void lidar_dev_pcl_receiver::stop_dev_pcl_receiver()
 	std::cout<<"Exit pcl data recv function"<<std::endl;
 #endif
 	stop = true;
-	pcl_thread.join(); //block here if not recycle the pcl_receiver
+	if(pcl_thread.joinable())
+	{
+		pcl_thread.join(); //block here if not recycle the pcl_receiver
+		close(sock_fd);
+	}
 	block_ptr->recycle_shared_mem();
-	close(sock_fd);
 }
 
 void lidar_dev_pcl_receiver::set_pcl_device_addr(struct sockaddr_in &livox,uint16_t data_port)
